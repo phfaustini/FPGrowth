@@ -33,6 +33,7 @@ library
       base >=4.7 && <5
   exposed-modules:
       Lib
+      Control.Parallel
   other-modules:
       Paths_fpgrowth
   default-language: Haskell2010
