@@ -1,5 +1,4 @@
 .stack-work/
-fpgrowth.cabal
 *.vs/*
 *.vscode*
 *~
