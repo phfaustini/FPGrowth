@@ -19,6 +19,10 @@ wget -qO- https://get.haskellstack.org/ | sh
 * In the root folder, type
 
 ```
+stack solver
+```
+
+```
 stack build
 ```
 
