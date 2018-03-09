@@ -37,11 +37,11 @@ resolver: lts-10.8
 # will not be run. This is useful for tweaking upstream packages.
 packages:
 - .
-- parallel-3.2.1.1
+#- parallel-3.2.1.1
 
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
-# extra-deps: []
+extra-deps: [parallel-3.2.1.1]
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

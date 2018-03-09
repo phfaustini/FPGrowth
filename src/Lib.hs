@@ -14,4 +14,4 @@ fib n = n1 `par` (n1 + n2)
     n2 = fib (n - 2)
 
 someFunc :: IO ()
-someFunc = print $ fib 36
+someFunc = print $ fib 5
