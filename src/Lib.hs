@@ -4,6 +4,11 @@ module Lib
     ) where
 
 import Control.Parallel
+import MyTree
+
+--foo = EmptyNode
+
+--bar = Node "root" 0 []
 
 fib :: Integer -> Integer
 fib 0 = 0
