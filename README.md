@@ -32,7 +32,7 @@ cabal build
 * In the root folder, type
 
 ```
-cabal run
+./dist/build/fpgrowth/fpgrowth +RTS -N1 -s -ls -M2g
 ```
 
 
