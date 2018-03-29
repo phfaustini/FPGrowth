@@ -19,4 +19,5 @@ main = do
     let transactions = map words fileContent
     print transactions
     print (countItems transactions (Map.fromList []) )
+    print (getNumberElements transactions 0 )
     print minsup

@@ -1,5 +1,6 @@
 module TransactionsReader where
-    
+
+import FPGrowth
 import qualified Data.Map as Map
 
 fromJust Nothing  = 0
@@ -10,7 +11,6 @@ countItems transactions counting
     | null transactions = counting
     | otherwise = countItems (tail transactions) (updateCounting (head transactions) counting)
     where
-        -- Se elemento nao esta em counting, counting[elemento] = 1, senao counting[elemento] += 1
         updateCounting transaction counting
             | null transaction = counting
             | otherwise = updateCounting (tail transaction) (updateElement (head transaction) counting)
@@ -21,4 +21,10 @@ countItems transactions counting
                         | otherwise = fromJust (Map.lookup element counting)
 
 
+-- | How many items there are in all transactions
+getNumberElements transactions counter
+    | null transactions = counter
+    | otherwise = getNumberElements (tail transactions) counter + length (head transactions)
 
+
+--applyThreshold countingTransaction = filter (>= minsup) (Map.toList countingTransaction)
