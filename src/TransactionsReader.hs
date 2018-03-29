@@ -27,4 +27,4 @@ getNumberElements transactions counter
     | otherwise = getNumberElements (tail transactions) counter + length (head transactions)
 
 
---applyThreshold countingTransaction = filter (>= minsup) (Map.toList countingTransaction)
+applyThreshold totalTransactions = Map.filter (>= minsup*totalTransactions)

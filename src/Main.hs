@@ -17,7 +17,8 @@ main = do
     let filepath = head args
     fileContent <- readLines filepath -- "input/transactions2.txt"
     let transactions = map words fileContent
-    print transactions
-    print (countItems transactions (Map.fromList []) )
-    print (getNumberElements transactions 0 )
     print minsup
+    print transactions
+    print (getNumberElements transactions 0 )
+    print (countItems transactions (Map.fromList []) )
+    print (applyThreshold (fromIntegral $ length transactions) (countItems transactions (Map.fromList []) ))
