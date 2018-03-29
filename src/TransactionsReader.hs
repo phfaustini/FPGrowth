@@ -2,11 +2,13 @@ module TransactionsReader where
 
 import FPGrowth
 import qualified Data.Map as Map
+import Data.List
+import Data.Ord
 
 fromJust Nothing  = 0
 fromJust (Just x) = x
 
--- | Count how many times each item appears in all transactions
+-- | Step1: Count how many times each item appears in all transactions
 countItems transactions counting
     | null transactions = counting
     | otherwise = countItems (tail transactions) (updateCounting (head transactions) counting)
@@ -27,4 +29,8 @@ getNumberElements transactions counter
     | otherwise = getNumberElements (tail transactions) counter + length (head transactions)
 
 
+-- | Step2: Eliminate items that do not appear in transactions enough.
 applyThreshold totalTransactions = Map.filter (>= minsup*totalTransactions)
+
+-- | Step3: Sort the list from most frequent item to the least one.
+sortbyMostFrequent countItems = Data.List.sortBy (Data.Ord.comparing snd) (Map.toList countItems)

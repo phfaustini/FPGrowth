@@ -21,4 +21,5 @@ main = do
     print transactions
     print (getNumberElements transactions 0 )
     print (countItems transactions (Map.fromList []) )
-    print (applyThreshold (fromIntegral $ length transactions) (countItems transactions (Map.fromList []) ))
+    print (applyThreshold (fromIntegral $ length transactions) (countItems transactions (Map.fromList [])) )
+    print (reverse $ sortbyMostFrequent (applyThreshold (fromIntegral $ length transactions) (countItems transactions (Map.fromList [])) ) )
