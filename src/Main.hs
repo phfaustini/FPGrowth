@@ -20,6 +20,8 @@ main = do
     print minsup
     print transactions
     print (getNumberElements transactions 0 )
-    print (countItems transactions (Map.fromList []) )
-    print (applyThreshold (fromIntegral $ length transactions) (countItems transactions (Map.fromList [])) )
-    print (reverse $ sortbyMostFrequent (applyThreshold (fromIntegral $ length transactions) (countItems transactions (Map.fromList [])) ) )
+    let itemsCounted = countItems transactions (Map.fromList [])
+    print itemsCounted
+    let itemsCountedAndPruned = applyThreshold (fromIntegral $ length transactions) itemsCounted  
+    print itemsCountedAndPruned
+    print (reverse $ sortbyMostFrequent itemsCountedAndPruned )

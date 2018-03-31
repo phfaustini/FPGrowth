@@ -11,7 +11,7 @@ These instructions will get you a copy of the project up and running on your loc
 * Cabal:
 
 ```
-sudo apt install haskell-platform
+$ sudo apt install haskell-platform
 ```
 
 ### Building
@@ -19,11 +19,9 @@ sudo apt install haskell-platform
 * In the root folder, type
 
 ```
-cabal configure
-```
+$ cabal configure
 
-```
-cabal build
+$ cabal build
 ```
 
 
@@ -32,7 +30,7 @@ cabal build
 * In the root folder, type
 
 ```
-./dist/build/fpgrowth/fpgrowth <fileinputname> +RTS -N1 -s -ls -M2g
+$ ./dist/build/fpgrowth/fpgrowth <fileinputname> +RTS -N1 -s -ls -M2g
 ```
 
 
