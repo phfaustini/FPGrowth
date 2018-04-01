@@ -38,3 +38,15 @@ applyThreshold transactionsLength = Map.filter (>= minsup*transactionsLength)
 -- | Step3: Sort the list from most frequent item to the least one.
 sortbyMostFrequent :: Ord a => Map.Map a1 a -> [(a1, a)]
 sortbyMostFrequent countItems = Data.List.sortBy (Data.Ord.comparing snd) (Map.toList countItems)
+
+-- | Sort a transaction from the most to least commom element.
+sortTransaction transaction itemsCountAndSorted output -- itemsCountAndSorted is LIST
+    | null itemsCountAndSorted = reverse output
+    | target `elem` transaction = sortTransaction transaction (tail itemsCountAndSorted) (target:output)
+    | otherwise = sortTransaction transaction (tail itemsCountAndSorted) output
+    where
+        target = fst $ head itemsCountAndSorted
+
+sortTransactions transactions itemsCountAndSorted output -- itemsCountAndSorted is LIST
+    | null transactions = output
+    | otherwise = sortTransactions (tail transactions) itemsCountAndSorted output ++ [sortTransaction (head transactions) itemsCountAndSorted []]

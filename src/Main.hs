@@ -17,11 +17,16 @@ main = do
     let filepath = head args
     fileContent <- readLines filepath -- "input/transactions2.txt"
     let transactions = map words fileContent
-    print minsup
-    print transactions
-    print (getNumberElements transactions 0 )
+    --print minsup
+    --print transactions
+    --print (getNumberElements transactions 0 )
     let itemsCounted = countItems transactions (Map.fromList [])
-    print itemsCounted
+    print itemsCounted -- MAP
     let itemsCountedAndPruned = applyThreshold (fromIntegral $ length transactions) itemsCounted  
-    print itemsCountedAndPruned
-    print (reverse $ sortbyMostFrequent itemsCountedAndPruned )
+    print itemsCountedAndPruned -- MAP
+    let itemsCountAndSorted = reverse $ sortbyMostFrequent itemsCounted
+    print itemsCountAndSorted -- LIST
+    let itemsCountAndPrunedAndSorted = reverse $ sortbyMostFrequent itemsCountedAndPruned
+    print itemsCountAndPrunedAndSorted -- LIST
+    let sortedTransactions = sortTransactions transactions itemsCountAndSorted []
+    print sortedTransactions
