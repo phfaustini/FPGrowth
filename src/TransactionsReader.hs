@@ -24,13 +24,6 @@ countItems transactions counting
                         | otherwise = fromJust (Map.lookup element counting)
 
 
--- | How many items there are in all transactions
-getNumberElements :: Foldable t => [t a] -> Int -> Int
-getNumberElements transactions counter
-    | null transactions = counter
-    | otherwise = getNumberElements (tail transactions) counter + length (head transactions)
-
-
 -- | Step2: Eliminate items that do not appear in transactions enough.
 applyThreshold :: Double -> Map.Map k Double -> Map.Map k Double
 applyThreshold transactionsLength = Map.filter (>= minsup*transactionsLength)

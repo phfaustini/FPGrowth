@@ -19,7 +19,6 @@ main = do
     let transactions = map words fileContent
     --print minsup
     --print transactions
-    --print (getNumberElements transactions 0 )
     let itemsCounted = countItems transactions (Map.fromList [])
     print itemsCounted -- MAP
     let itemsCountedAndPruned = applyThreshold (fromIntegral $ length transactions) itemsCounted  
@@ -30,3 +29,4 @@ main = do
     print itemsCountAndPrunedAndSorted -- LIST
     let sortedTransactions = sortTransactions transactions itemsCountAndSorted []
     print sortedTransactions
+    
