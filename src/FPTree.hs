@@ -1,14 +1,6 @@
 module FPTree where
 
-data FPNode = FPNode { fpitem :: String, fpcount :: Integer, fpchildren :: [FPNode]} deriving (Show, Eq)
-
-{-root = FPNode "null" 0 []
-e = FPNode "e" 1 []
-d = FPNode "d" 1 [e]
-c = FPNode "c" 1 [d]
-b = FPNode "b" 1 []
-a = FPNode "a" 1 [b,c]
--}
+data FPNode = FPNode { fpitem :: String, fpcount :: Int, fpchildren :: [FPNode]} deriving (Show, Eq)
 
 hasChild :: String -> [FPNode] -> Bool
 hasChild key children

@@ -20,13 +20,19 @@ main = do
     --print minsup
     --print transactions
     let itemsCounted = countItems transactions (Map.fromList [])
-    print itemsCounted -- MAP
+    --print itemsCounted -- MAP
     let itemsCountedAndPruned = applyThreshold (fromIntegral $ length transactions) itemsCounted  
-    print itemsCountedAndPruned -- MAP
+    --print itemsCountedAndPruned -- MAP
     let itemsCountAndSorted = reverse $ sortbyMostFrequent itemsCounted
-    print itemsCountAndSorted -- LIST
-    let itemsCountAndPrunedAndSorted = reverse $ sortbyMostFrequent itemsCountedAndPruned
-    print itemsCountAndPrunedAndSorted -- LIST
+    --print itemsCountAndSorted -- LIST
+    let itemsCountAndPrunedAndSorted = [("beer",5.0),("butter",3.0),("milk",3.0),("cheese",3.0),("bread",2.0)] -- reverse $ sortbyMostFrequent itemsCountedAndPruned
+    --print itemsCountAndPrunedAndSorted -- LIST
     let sortedTransactions = sortTransactions transactions itemsCountAndSorted []
-    print sortedTransactions
-    
+    --print reverse sortedTransactions
+    let sortedPrunedTransactions = sortTransactions transactions itemsCountAndPrunedAndSorted []
+    print $ reverse sortedPrunedTransactions
+    let root = FPNode "null" (length transactions) []
+    let fptree = buildFPTree (reverse sortedPrunedTransactions) root
+    print fptree
+    let prunedFPTree = prune (minsup * fromIntegral (length transactions)) fptree
+    print prunedFPTree
