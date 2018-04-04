@@ -25,7 +25,7 @@ main = do
     --print itemsCountedAndPruned -- MAP
     let itemsCountAndSorted = reverse $ sortbyMostFrequent itemsCounted
     --print itemsCountAndSorted -- LIST
-    let itemsCountAndPrunedAndSorted = [("beer",5.0),("butter",3.0),("milk",3.0),("cheese",3.0),("bread",2.0)] -- reverse $ sortbyMostFrequent itemsCountedAndPruned
+    let itemsCountAndPrunedAndSorted = reverse $ sortbyMostFrequent itemsCountedAndPruned
     --print itemsCountAndPrunedAndSorted -- LIST
     let sortedTransactions = sortTransactions transactions itemsCountAndSorted []
     --print reverse sortedTransactions
