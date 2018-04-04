@@ -24,15 +24,19 @@ main = do
     let itemsCountedAndPruned = applyThreshold (fromIntegral $ length transactions) itemsCounted  
     --print itemsCountedAndPruned -- MAP
     let itemsCountAndSorted = reverse $ sortbyMostFrequent itemsCounted
-    --print itemsCountAndSorted -- LIST
+    print itemsCountAndSorted -- LIST
+    putStrLn ""
     let itemsCountAndPrunedAndSorted = reverse $ sortbyMostFrequent itemsCountedAndPruned
-    --print itemsCountAndPrunedAndSorted -- LIST
+    print itemsCountAndPrunedAndSorted -- LIST
+    putStrLn ""
     let sortedTransactions = sortTransactions transactions itemsCountAndSorted []
     --print reverse sortedTransactions
     let sortedPrunedTransactions = sortTransactions transactions itemsCountAndPrunedAndSorted []
     print $ reverse sortedPrunedTransactions
+    putStrLn ""
     let root = FPNode "null" (length transactions) []
     let fptree = buildFPTree (reverse sortedPrunedTransactions) root
     print fptree
+    putStrLn ""
     let prunedFPTree = prune (minsup * fromIntegral (length transactions)) fptree
     print prunedFPTree

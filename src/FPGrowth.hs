@@ -2,7 +2,7 @@ module FPGrowth where
 
 import FPTree
 
-minsup = 0.4 -- An item has to appear in at least 40% of all transactions
+minsup = 0.3 -- An item has to appear in at least 40% of all transactions
 
 insertTransaction :: [String] -> FPNode -> FPNode
 insertTransaction transaction currentNode 
