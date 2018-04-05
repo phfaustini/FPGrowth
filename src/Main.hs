@@ -15,7 +15,7 @@ main::IO ()
 main = do
     args <- getArgs
     let filepath = head args
-    fileContent <- readLines filepath -- "input/transactions2.txt"
+    fileContent <- readLines filepath -- "input/transactions.txt"
     let transactions = map words fileContent
     --print minsup
     --print transactions

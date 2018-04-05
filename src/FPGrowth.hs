@@ -2,11 +2,6 @@ module FPGrowth where
 
 import FPTree
 
-root = FPNode "null" 10 []
-t1 = insertTransaction ["a"] root
-
-v1 = insertTransaction ["a", "b", "c"] root
-
 minsup = 0.3 -- An item has to appear in at least xx% of all transactions
 
 createBranch :: [String] -> FPNode
