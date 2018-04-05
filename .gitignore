@@ -1,5 +1,6 @@
-.stack-work/
-fpgrowth.cabal
 *.vs/*
 *.vscode*
 *~
+dist/*
+*.swp
+*.eventlog

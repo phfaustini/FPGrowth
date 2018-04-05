@@ -8,18 +8,20 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-* Install Stack (Linux):
+* Cabal:
 
 ```
-wget -qO- https://get.haskellstack.org/ | sh
+$ sudo apt install haskell-platform
 ```
 
-### Installing
+### Building
 
 * In the root folder, type
 
 ```
-stack build
+$ cabal configure
+
+$ cabal build
 ```
 
 
@@ -28,7 +30,7 @@ stack build
 * In the root folder, type
 
 ```
-stack exec fpgrowth-exe
+$ ./dist/build/fpgrowth/fpgrowth <fileinputname> +RTS -N1 -s -ls -M2g
 ```
 
 
@@ -39,7 +41,7 @@ stack exec fpgrowth-exe
 
 ## License
 
-This project is licensed under the BSD3 License - see the [LICENSE](LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## References
 
