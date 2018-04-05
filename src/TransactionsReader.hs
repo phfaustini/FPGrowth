@@ -1,12 +1,11 @@
 module TransactionsReader where
 
-import FPGrowth
+import FPTree
 import qualified Data.Map as Map
+import Data.Maybe
 import Data.List
 import Data.Ord
 
-fromJust Nothing  = 0
-fromJust (Just x) = x
 
 -- | Step1: Count how many times each item appears in all transactions
 countItems :: (Eq a, Num a, Ord k) => [[k]] -> Map.Map k a -> Map.Map k a
@@ -20,7 +19,7 @@ countItems transactions counting
             where
                 updateElement element counting = Map.insert element (check element counting + 1) counting
                 check element counting
-                        | Map.lookup element counting == Nothing = 0
+                        | isNothing (Map.lookup element counting) = 0
                         | otherwise = fromJust (Map.lookup element counting)
 
 

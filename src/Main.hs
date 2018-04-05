@@ -3,8 +3,8 @@ module Main where
 import System.Environment -- getArgs
 import Control.Parallel
 import TransactionsReader
-import FPTree
-import FPGrowth -- minsup
+import FPTree -- minsup
+import FPGrowth
 import qualified Data.Map as Map
 
 readLines :: FilePath -> IO [String]
