@@ -2,25 +2,34 @@ module FPGrowth where
 
 import FPTree
 
-minsup = 0.3 -- An item has to appear in at least 40% of all transactions
+root = FPNode "null" 10 []
+t1 = insertTransaction ["a"] root
+
+v1 = insertTransaction ["a", "b", "c"] root
+
+minsup = 0.3 -- An item has to appear in at least xx% of all transactions
+
+createBranch :: [String] -> FPNode
+createBranch transaction
+    | length transaction == 1 = FPNode (head transaction) 1 []
+    | otherwise = FPNode (head transaction) 1 [createBranch (tail transaction)]
 
 insertTransaction :: [String] -> FPNode -> FPNode
-insertTransaction transaction currentNode 
-    | null transaction = currentNode
-    | hasChild (head transaction) oldChildren = FPNode
-                                                    (fpitem currentNode) 
-                                                    (fpcount currentNode)
-                                                    (removeOldElement oldChildren newElement ++ [insertTransaction (tail transaction) newElement])
-    | otherwise = FPNode 
-                        (fpitem currentNode) 
-                        (fpcount currentNode) 
-                        (oldChildren ++ [insertTransaction (tail transaction) newElement])
+insertTransaction transaction root
+    | toBeIncluded == 1 && incrementFPCountSomeChild = FPNode (fpitem root)
+                                                       (fpcount root)
+                                                       (head [FPNode (fpitem x) (fpcount x + 1) (fpchildren x) | x <- fpchildren root, fpitem x == head transaction] : otherChildren)
+    | toBeIncluded > 1 && incrementFPCountSomeChild = FPNode (fpitem root)
+                                                      (fpcount root)
+                                                      (head [ insertTransaction (tail transaction) (FPNode (fpitem x) (fpcount x + 1) (fpchildren x)) | x <- fpchildren root, fpitem x == head transaction] : otherChildren)
+    | otherwise = FPNode (fpitem root)
+                         (fpcount root)
+                         (createBranch transaction : fpchildren root)
     where 
-        inserted = insertNode (head transaction) currentNode
-        newElement = head (fpchildren inserted)
-        oldChildren = fpchildren currentNode
-        removeOldElement oldChildren newElement = [x | x <- oldChildren, fpitem x /= fpitem newElement ]
-
+        toBeIncluded = length transaction
+        incrementFPCountSomeChild = hasChild (head transaction) (fpchildren root)
+        otherChildren = [x | x <- fpchildren root, fpitem x /= head transaction]
+    
 
 buildFPTree :: [[String]] -> FPNode -> FPNode
 buildFPTree transactions node
