@@ -1,9 +1,10 @@
 module FPTree where
 
-minsup = 0.3 -- An item has to appear in at least xx% of all transactions
+minsup = 0.01 -- An item has to appear in at least xx% of all transactions
 
 data FPNode = FPNode { fpitem :: String, fpcount :: Int, fpchildren :: [FPNode]} deriving (Show, Eq)
 
+-- | It is NOT recursive on children!
 hasChild :: String -> [FPNode] -> Bool
 hasChild key children
     | null children = False
@@ -45,3 +46,9 @@ prune :: Double -> FPNode -> FPNode
 prune threshold node
     | null $ fpchildren node = node
     | otherwise = FPNode (fpitem node) (fpcount node) [ prune threshold x | x <- fpchildren node, fromIntegral (fpcount x) >= threshold]
+
+-- | Remove element and all of its children from FPTree.
+pruneElement :: String -> FPNode -> FPNode
+pruneElement key node
+    | null $ fpchildren node = node
+    | otherwise = FPNode (fpitem node) (fpcount node) [ pruneElement key x | x <- fpchildren node, fpitem x /= key]

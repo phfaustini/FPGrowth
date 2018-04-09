@@ -23,15 +23,15 @@ main = do
     --print itemsCounted -- MAP
     let itemsCountedAndPruned = applyThreshold (fromIntegral $ length transactions) itemsCounted  
     --print itemsCountedAndPruned -- MAP
-    let itemsCountAndSorted = reverse $ sortbyMostFrequent itemsCounted
-    print itemsCountAndSorted -- LIST
+    let headerTable = reverse $ sortbyMostFrequent itemsCounted
+    print headerTable -- LIST
     putStrLn ""
-    let itemsCountAndPrunedAndSorted = reverse $ sortbyMostFrequent itemsCountedAndPruned
-    print itemsCountAndPrunedAndSorted -- LIST
+    let headerTablePruned = reverse $ sortbyMostFrequent itemsCountedAndPruned
+    print headerTablePruned -- LIST
     putStrLn ""
-    let sortedTransactions = sortTransactions transactions itemsCountAndSorted []
+    let sortedTransactions = sortTransactions transactions headerTable []
     --print reverse sortedTransactions
-    let sortedPrunedTransactions = sortTransactions transactions itemsCountAndPrunedAndSorted []
+    let sortedPrunedTransactions = sortTransactions transactions headerTablePruned []
     print $ reverse sortedPrunedTransactions
     putStrLn ""
     let root = FPNode "null" (length transactions) []
