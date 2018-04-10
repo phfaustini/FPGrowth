@@ -43,10 +43,9 @@ main = do
     --putStrLn ""
 
     let headerTablePrunedfromMintoMax = reverse headerTablePruned
-    let cpb = buildConditionalPatternBase headerTablePrunedfromMintoMax prunedFPTree
-    print cpb
+    let cpbs = buildConditionalPatternBase headerTablePrunedfromMintoMax prunedFPTree
+    print cpbs
     putStrLn ""
-    let conditionalFPTree = buildConditionalFPTree cpb
-    let prunedConditionalFPTree = [prune (minsup * fromIntegral (length transactions)) fptree | fptree <- conditionalFPTree]
-    print prunedConditionalFPTree
+    let conditionalFPTree = buildConditionalFPTree cpbs headerTablePruned
+    print conditionalFPTree
     putStrLn ""

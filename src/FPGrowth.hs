@@ -2,7 +2,10 @@ module FPGrowth where
 
 import FPTree
 
-f = FPNode {fpitem = "null", fpcount = 9, fpchildren = [FPNode {fpitem = "I2", fpcount = 7, fpchildren = [FPNode {fpitem = "I3", fpcount = 4, fpchildren = [FPNode {fpitem = "I1", fpcount = 2, fpchildren = [FPNode {fpitem = "I5", fpcount = 1, fpchildren = []}]},FPNode {fpitem = "I4", fpcount = 1, fpchildren = []},FPNode {fpitem = "I5", fpcount = 1, fpchildren = []}]},FPNode {fpitem = "I1", fpcount = 2, fpchildren = []},FPNode {fpitem = "I4", fpcount = 1, fpchildren = []}]},FPNode {fpitem = "I3", fpcount = 2, fpchildren = [FPNode {fpitem = "I1", fpcount = 2, fpchildren = []}]}]}
+_f = FPNode {fpitem = "null", fpcount = 9, fpchildren = [FPNode {fpitem = "I2", fpcount = 7, fpchildren = [FPNode {fpitem = "I3", fpcount = 4, fpchildren = [FPNode {fpitem = "I1", fpcount = 2, fpchildren = [FPNode {fpitem = "I5", fpcount = 1, fpchildren = []}]},FPNode {fpitem = "I4", fpcount = 1, fpchildren = []},FPNode {fpitem = "I5", fpcount = 1, fpchildren = []}]},FPNode {fpitem = "I1", fpcount = 2, fpchildren = []},FPNode {fpitem = "I4", fpcount = 1, fpchildren = []}]},FPNode {fpitem = "I3", fpcount = 2, fpchildren = [FPNode {fpitem = "I1", fpcount = 2, fpchildren = []}]}]}
+_headerTablePruned = [("I2",7.0),("I3",6.0),("I1",6.0),("I5",2.0),("I4",2.0)]
+--_cpbs = [[(1,["I4","I2","null"]),(1,["I4","I3","I2","null"])],[(1,["I5","I3","I2","null"]),(1,["I5","I1","I3","I2","null"])],[(2,["I1","I3","null"]),(2,["I1","I2","null"]),(2,["I1","I3","I2","null"])],[(2,["I3","null"]),(4,["I3","I2","null"])],[(7,["I2","null"])]]
+_cpbs = [[(2,["I3","null"]),(4,["I3","I2","null"])]]
 
 -- | PRIVATE
 rawConditionalPatternBase :: String -> FPNode -> [String] -> [[String]]
@@ -38,15 +41,26 @@ buildConditionalPatternBase headerTable node
     | otherwise = headerTableToConditionalPatternBase headerTable node : buildConditionalPatternBase (tail headerTable) node
 
 -- | PRIVATE
-conditionalFPTree :: (Eq t, Num t) => [(t, [String])] -> FPNode
-conditionalFPTree cpb = prune (fromIntegral (length transactionsReversedNotNull)) (buildFPTree transactionsReversedNotNull (FPNode "null" (length transactionsReversedNotNull) []))
+conditionalFPTree :: (Eq a, Num a) => [(a, [String])] -> [(String, Double)] -> FPNode
+conditionalFPTree cpb headerTable = buildFPTree transactionsReversedNotNull (FPNode key (length transactionsReversedNotNull) []) -- prune??
     where
     transactions = replicateLists cpb -- map snd cpb
     transactionsReversed = map reverse transactions
-    transactionsReversedNotNull = map (drop 1) transactionsReversed -- "null" and element itself removed
+    removeFirstLast l = init (drop 1 l)
+    transactionsReversedNotNull = filter (/= []) (map removeFirstLast transactionsReversed) -- "null" and element itself removed. Empties filtered out.
+    key = head (snd (head cpb))
+    t = findThreshold key headerTable
 
-buildConditionalFPTree :: (Eq t, Num t) => [[(t, [String])]] -> [FPNode]
-buildConditionalFPTree cpb = [ conditionalFPTree x | x <- cpb]
+
+-- | PRIVATE 
+findThreshold :: String -> [(String, Double)] -> Double
+findThreshold key headerTable
+    | null headerTable = 0
+    | fst (head headerTable) == key = snd (head headerTable)
+    | otherwise = findThreshold key (tail headerTable)
+
+buildConditionalFPTree :: (Eq a, Num a) => [[(a, [String])]] -> [(String, Double)] -> [FPNode]
+buildConditionalFPTree cpbs headerTable = [ conditionalFPTree x headerTable | x <- cpbs]
 
 -- | PRIVATE
 replicateList :: (Eq a, Num a) => (a, b) -> [b]
