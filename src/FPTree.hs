@@ -4,6 +4,7 @@ minsup = 0.01 -- An item has to appear in at least xx% of all transactions
 
 data FPNode = FPNode { fpitem :: String, fpcount :: Int, fpchildren :: [FPNode]} deriving (Show, Eq)
 
+-- | PRIVATE
 -- | It is NOT recursive on children!
 hasChild :: String -> [FPNode] -> Bool
 hasChild key children
@@ -12,12 +13,14 @@ hasChild key children
     | otherwise = hasChild key (tail children)
 
 
+-- | PRIVATE
 createBranch :: [String] -> FPNode
 createBranch transaction
     | length transaction == 1 = FPNode (head transaction) 1 []
     | otherwise = FPNode (head transaction) 1 [createBranch (tail transaction)]
 
-    
+
+-- | PRIVATE
 insertTransaction :: [String] -> FPNode -> FPNode
 insertTransaction transaction root
     | toBeIncluded == 1 && incrementFPCountSomeChild = FPNode (fpitem root)

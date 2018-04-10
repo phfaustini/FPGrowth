@@ -24,8 +24,8 @@ main = do
     let itemsCountedAndPruned = applyThreshold (fromIntegral $ length transactions) itemsCounted  
     --print itemsCountedAndPruned -- MAP
     let headerTable = reverse $ sortbyMostFrequent itemsCounted
-    print headerTable -- LIST
-    putStrLn ""
+    --print headerTable -- LIST
+    --putStrLn ""
     let headerTablePruned = reverse $ sortbyMostFrequent itemsCountedAndPruned
     print headerTablePruned -- LIST
     putStrLn ""
@@ -36,7 +36,13 @@ main = do
     putStrLn ""
     let root = FPNode "null" (length transactions) []
     let fptree = buildFPTree (reverse sortedPrunedTransactions) root
-    print fptree
-    putStrLn ""
+    --print fptree
+    --putStrLn ""
     let prunedFPTree = prune (minsup * fromIntegral (length transactions)) fptree
     print prunedFPTree
+    putStrLn ""
+
+    let headerTablePrunedfromMintoMax = reverse headerTablePruned
+    let cpb = buildConditionalPatternBase headerTablePrunedfromMintoMax prunedFPTree
+    print (buildConditionalFPTree cpb)
+    putStrLn ""

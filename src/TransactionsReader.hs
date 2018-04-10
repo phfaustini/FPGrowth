@@ -31,6 +31,7 @@ applyThreshold transactionsLength = Map.filter (>= minsup*transactionsLength)
 sortbyMostFrequent :: Ord a => Map.Map a1 a -> [(a1, a)]
 sortbyMostFrequent countItems = Data.List.sortBy (Data.Ord.comparing snd) (Map.toList countItems)
 
+-- | PRIVATE
 -- | Sort a transaction from the most to least commom element.
 sortTransaction transaction itemsCountAndSorted output -- itemsCountAndSorted is LIST
     | null itemsCountAndSorted = reverse output
