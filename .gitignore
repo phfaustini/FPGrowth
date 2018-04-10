@@ -3,4 +3,6 @@
 *~
 dist/*
 *.swp
+*.swn
+*.swo
 *.eventlog

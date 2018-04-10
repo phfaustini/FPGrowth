@@ -38,12 +38,24 @@ buildConditionalPatternBase headerTable node
     | otherwise = headerTableToConditionalPatternBase headerTable node : buildConditionalPatternBase (tail headerTable) node
 
 -- | PRIVATE
-conditionalFPTree :: Num t => [(t, [String])] -> FPNode
-conditionalFPTree cpb = buildFPTree transactionsReversedNotNull (FPNode "null" (length transactionsReversedNotNull) [])
+conditionalFPTree :: (Eq t, Num t) => [(t, [String])] -> FPNode
+conditionalFPTree cpb = prune (fromIntegral (length transactionsReversedNotNull)) (buildFPTree transactionsReversedNotNull (FPNode "null" (length transactionsReversedNotNull) []))
     where
-    transactions = map snd cpb
+    transactions = replicateLists cpb -- map snd cpb
     transactionsReversed = map reverse transactions
-    transactionsReversedNotNull = map (drop 1) transactionsReversed
+    transactionsReversedNotNull = map (drop 1) transactionsReversed -- "null" and element itself removed
 
-buildConditionalFPTree :: Num t => [[(t, [String])]] -> [FPNode]
+buildConditionalFPTree :: (Eq t, Num t) => [[(t, [String])]] -> [FPNode]
 buildConditionalFPTree cpb = [ conditionalFPTree x | x <- cpb]
+
+-- | PRIVATE
+replicateList :: (Eq a, Num a) => (a, b) -> [b]
+replicateList pair 
+    | fst pair == 1 = [snd pair]
+    | otherwise = snd pair : replicateList (fst pair-1, snd pair)
+
+-- | PRIVATE
+replicateLists :: (Eq a, Num a) => [(a, t)] -> [t]
+replicateLists pairs
+    | null pairs = []
+    | otherwise = replicateList (head pairs) ++ replicateLists (tail pairs)

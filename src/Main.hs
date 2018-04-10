@@ -32,17 +32,21 @@ main = do
     let sortedTransactions = sortTransactions transactions headerTable []
     --print reverse sortedTransactions
     let sortedPrunedTransactions = sortTransactions transactions headerTablePruned []
-    print $ reverse sortedPrunedTransactions
-    putStrLn ""
+    --print $ reverse sortedPrunedTransactions
+    --putStrLn ""
     let root = FPNode "null" (length transactions) []
     let fptree = buildFPTree (reverse sortedPrunedTransactions) root
     --print fptree
     --putStrLn ""
     let prunedFPTree = prune (minsup * fromIntegral (length transactions)) fptree
-    print prunedFPTree
-    putStrLn ""
+    --print prunedFPTree
+    --putStrLn ""
 
     let headerTablePrunedfromMintoMax = reverse headerTablePruned
     let cpb = buildConditionalPatternBase headerTablePrunedfromMintoMax prunedFPTree
-    print (buildConditionalFPTree cpb)
+    print cpb
+    putStrLn ""
+    let conditionalFPTree = buildConditionalFPTree cpb
+    let prunedConditionalFPTree = [prune (minsup * fromIntegral (length transactions)) fptree | fptree <- conditionalFPTree]
+    print prunedConditionalFPTree
     putStrLn ""
