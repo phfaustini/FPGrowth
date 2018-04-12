@@ -1,11 +1,15 @@
 module FPGrowth where
 
 import FPTree
+import Data.List -- subsequences
+import Data.Map (Map)
+import qualified Data.Map as Map
+import Data.Maybe
 
 _f = FPNode {fpitem = "null", fpcount = 9, fpchildren = [FPNode {fpitem = "I2", fpcount = 7, fpchildren = [FPNode {fpitem = "I3", fpcount = 4, fpchildren = [FPNode {fpitem = "I1", fpcount = 2, fpchildren = [FPNode {fpitem = "I5", fpcount = 1, fpchildren = []}]},FPNode {fpitem = "I4", fpcount = 1, fpchildren = []},FPNode {fpitem = "I5", fpcount = 1, fpchildren = []}]},FPNode {fpitem = "I1", fpcount = 2, fpchildren = []},FPNode {fpitem = "I4", fpcount = 1, fpchildren = []}]},FPNode {fpitem = "I3", fpcount = 2, fpchildren = [FPNode {fpitem = "I1", fpcount = 2, fpchildren = []}]}]}
 _headerTablePruned = [("I2",7.0),("I3",6.0),("I1",6.0),("I5",2.0),("I4",2.0)]
---_cpbs = [[(1,["I4","I2","null"]),(1,["I4","I3","I2","null"])],[(1,["I5","I3","I2","null"]),(1,["I5","I1","I3","I2","null"])],[(2,["I1","I3","null"]),(2,["I1","I2","null"]),(2,["I1","I3","I2","null"])],[(2,["I3","null"]),(4,["I3","I2","null"])],[(7,["I2","null"])]]
-_cpbs = [[(2,["I3","null"]),(4,["I3","I2","null"])]]
+_cpbs = [[(1,["I4","I2","null"]),(1,["I4","I3","I2","null"])],[(1,["I5","I3","I2","null"]),(1,["I5","I1","I3","I2","null"])],[(2,["I1","I3","null"]),(2,["I1","I2","null"]),(2,["I1","I3","I2","null"])],[(2,["I3","null"]),(4,["I3","I2","null"])],[(7,["I2","null"])]]
+_cpb = [(2,["I1","I3","null"]),(2,["I1","I2","null"]),(2,["I1","I3","I2","null"])]
 
 -- | PRIVATE
 rawConditionalPatternBase :: String -> FPNode -> [String] -> [[String]]
@@ -73,3 +77,33 @@ replicateLists :: (Eq a, Num a) => [(a, t)] -> [t]
 replicateLists pairs
     | null pairs = []
     | otherwise = replicateList (head pairs) ++ replicateLists (tail pairs)
+
+
+-- | PRIVATE
+patternsCombination :: [(t, [String])] -> [(t, [[String]])] -> [(t, [[String]])]
+patternsCombination cpb output
+    | null cpb = output
+    | otherwise = patternsCombination (tail cpb) ((count, combinations) : output)
+    where
+        count = fst $ head cpb
+        items = init (drop 1 (snd $ head cpb))
+        combinations = map (\x -> item : x) $ filter (/= []) $ subsequences items
+        item = head $ snd $ head cpb
+
+
+reduceCombination :: (Num a1, Ord a) => (a1, [a]) -> Map a a1 -> Map a a1
+reduceCombination subcpb myMap
+    | null $ snd subcpb = myMap
+    | otherwise = reduceCombination (fst subcpb, tail (snd subcpb)) updateMap
+    where 
+        key = head $ snd subcpb
+        updateMap = Map.insert key updatedValue myMap
+        updatedValue
+            | isNothing (Map.lookup key myMap) = fst subcpb
+            | otherwise = fromJust (Map.lookup key myMap) + fst subcpb
+
+
+reduceCombinations :: (Num a1, Ord a) => [(a1, [a])] -> Map a a1 -> Map a a1
+reduceCombinations cpb myMap
+    | null cpb = myMap
+    | otherwise = reduceCombinations (tail cpb) (reduceCombination (head cpb) myMap)
