@@ -6,7 +6,7 @@ License     :  See LICENSE
 
 Maintainer  :  pedro.faustini@ufabc.edu.br
 Stability   :  experimental
-Portability :  non-portable (Teste only in Linux)
+Portability :  non-portable (Tested only in Linux)
 
 This module contains functions to retrieve frequent items from a FPTree.
 -}
@@ -19,11 +19,6 @@ import Data.List -- subsequences
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe
-
-_f = FPNode {fpitem = "null", fpcount = 9, fpchildren = [FPNode {fpitem = "I2", fpcount = 7, fpchildren = [FPNode {fpitem = "I3", fpcount = 4, fpchildren = [FPNode {fpitem = "I1", fpcount = 2, fpchildren = [FPNode {fpitem = "I5", fpcount = 1, fpchildren = []}]},FPNode {fpitem = "I4", fpcount = 1, fpchildren = []},FPNode {fpitem = "I5", fpcount = 1, fpchildren = []}]},FPNode {fpitem = "I1", fpcount = 2, fpchildren = []},FPNode {fpitem = "I4", fpcount = 1, fpchildren = []}]},FPNode {fpitem = "I3", fpcount = 2, fpchildren = [FPNode {fpitem = "I1", fpcount = 2, fpchildren = []}]}]}
-_headerTablePruned = [("I2",7.0),("I3",6.0),("I1",6.0),("I5",2.0),("I4",2.0)]
-_cpbs = [[(1,["I4","I2","null"]),(1,["I4","I3","I2","null"])],[(1,["I5","I3","I2","null"]),(1,["I5","I1","I3","I2","null"])],[(2,["I1","I3","null"]),(2,["I1","I2","null"]),(2,["I1","I3","I2","null"])],[(2,["I3","null"]),(4,["I3","I2","null"])],[(7,["I2","null"])]]
-_cpb = [(2,["I1","I3","null"]),(2,["I1","I2","null"]),(2,["I1","I3","I2","null"])]
 
 -- | PRIVATE
 rawConditionalPatternBase :: String -> FPNode -> [String] -> [[String]]
@@ -118,25 +113,21 @@ reduceCombination subcpb myMap
             | otherwise = fromJust (Map.lookup key myMap) + fst subcpb
 
 
+-- | PRIVATE
 reduceCombinations :: (Num a1, Ord a) => [(a1, [a])] -> Map a a1 -> Map a a1
 reduceCombinations cpb myMap
     | null cpb = myMap
     | otherwise = reduceCombinations (tail cpb) (reduceCombination (head cpb) myMap)
 
 
-frequentPatternItems :: Num a1 => [[(a1, [String])]] -> [Map [String] a1] -> [Map [String] a1]
-frequentPatternItems cpbs frequentitems
+
+rawFrequentPatternItems :: Num a1 => [[(a1, [String])]] -> [Map [String] a1] -> [Map [String] a1]
+rawFrequentPatternItems cpbs frequentitems
     | null cpbs = frequentitems
-    | otherwise = frequentPatternItems (tail cpbs) (reduceCombinations cpb Map.empty : frequentitems)
+    | otherwise = rawFrequentPatternItems (tail cpbs) (reduceCombinations cpb Map.empty : frequentitems)
     where
         cpb = patternsCombination (head cpbs) []
 
-{-
 
-let c = patternsCombination _cpb []
-reduceCombinations c Map.empty
-
-
-TODO: apply support to prune infrequent items!!
-
--}
+frequentPatternItems :: Ord a => [Map a1 a] -> a -> [(a1, a)]
+frequentPatternItems frequentitemsmap minsup = [y | x<-frequentitemsmap, y <- Map.toList x, snd y >= minsup  ]

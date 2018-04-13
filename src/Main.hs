@@ -6,7 +6,7 @@ License     :  See LICENSE
 
 Maintainer  :  pedro.faustini@ufabc.edu.br
 Stability   :  provisional
-Portability :  non-portable (Teste only in Linux)
+Portability :  non-portable (Tested only in Linux)
 
 This module is the Main module, the entry point of the program.
 All impure actions, like IO, are contained here, and only here.
@@ -70,8 +70,8 @@ main = do
 
     let headerTablePrunedfromMintoMax = reverse headerTablePruned
     let cpbs = buildConditionalPatternBase headerTablePrunedfromMintoMax prunedFPTree
-    print cpbs
-    putStrLn ""
-    let frequentItems = frequentPatternItems cpbs []
+    --print cpbs
+    --putStrLn ""
+    let frequentItems = frequentPatternItems (rawFrequentPatternItems cpbs []) (ceiling (minsup * fromIntegral (length transactions)))
     print frequentItems
     putStrLn ""

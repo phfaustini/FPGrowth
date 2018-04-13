@@ -6,7 +6,7 @@ License     :  See LICENSE
 
 Maintainer  :  pedro.faustini@ufabc.edu.br
 Stability   :  stable
-Portability :  non-portable (Teste only in Linux)
+Portability :  non-portable (Tested only in Linux)
 
 This module contains functions to deal with transaction items.
 The transactions are collected in Main.hs (through IO operations)
