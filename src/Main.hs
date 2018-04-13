@@ -1,3 +1,17 @@
+{- |
+Module      :  Main.hs
+Description :  Entry point and IO functions.
+Copyright   :  Copyright (c) 2018 Pedro Faustini
+License     :  See LICENSE
+
+Maintainer  :  pedro.faustini@ufabc.edu.br
+Stability   :  provisional
+Portability :  non-portable (Teste only in Linux)
+
+This module is the Main module, the entry point of the program.
+All impure actions, like IO, are contained here, and only here.
+-}
+
 module Main where
 
 import System.Environment -- getArgs
@@ -58,6 +72,6 @@ main = do
     let cpbs = buildConditionalPatternBase headerTablePrunedfromMintoMax prunedFPTree
     print cpbs
     putStrLn ""
-    let conditionalFPTree = buildConditionalFPTree cpbs headerTablePruned
-    putStrLn (printTrees conditionalFPTree " ")
+    let frequentItems = frequentPatternItems cpbs []
+    print frequentItems
     putStrLn ""

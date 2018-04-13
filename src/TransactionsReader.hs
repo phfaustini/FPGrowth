@@ -1,3 +1,18 @@
+{- |
+Module      :  TransactionsReader.hs
+Description :  Functions to deal with transactions.
+Copyright   :  Copyright (c) 2018 Pedro Faustini
+License     :  See LICENSE
+
+Maintainer  :  pedro.faustini@ufabc.edu.br
+Stability   :  stable
+Portability :  non-portable (Teste only in Linux)
+
+This module contains functions to deal with transaction items.
+The transactions are collected in Main.hs (through IO operations)
+and processed here.
+-}
+
 module TransactionsReader where
 
 import FPTree

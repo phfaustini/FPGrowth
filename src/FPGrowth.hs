@@ -1,3 +1,17 @@
+{- |
+Module      :  FPGrowth.hs
+Description :  Frequent Pattern items mining
+Copyright   :  Copyright (c) 2018 Pedro Faustini
+License     :  See LICENSE
+
+Maintainer  :  pedro.faustini@ufabc.edu.br
+Stability   :  experimental
+Portability :  non-portable (Teste only in Linux)
+
+This module contains functions to retrieve frequent items from a FPTree.
+-}
+
+
 module FPGrowth where
 
 import FPTree
@@ -91,6 +105,7 @@ patternsCombination cpb output
         item = head $ snd $ head cpb
 
 
+-- | PRIVATE
 reduceCombination :: (Num a1, Ord a) => (a1, [a]) -> Map a a1 -> Map a a1
 reduceCombination subcpb myMap
     | null $ snd subcpb = myMap
@@ -107,3 +122,21 @@ reduceCombinations :: (Num a1, Ord a) => [(a1, [a])] -> Map a a1 -> Map a a1
 reduceCombinations cpb myMap
     | null cpb = myMap
     | otherwise = reduceCombinations (tail cpb) (reduceCombination (head cpb) myMap)
+
+
+frequentPatternItems :: Num a1 => [[(a1, [String])]] -> [Map [String] a1] -> [Map [String] a1]
+frequentPatternItems cpbs frequentitems
+    | null cpbs = frequentitems
+    | otherwise = frequentPatternItems (tail cpbs) (reduceCombinations cpb Map.empty : frequentitems)
+    where
+        cpb = patternsCombination (head cpbs) []
+
+{-
+
+let c = patternsCombination _cpb []
+reduceCombinations c Map.empty
+
+
+TODO: apply support to prune infrequent items!!
+
+-}

@@ -1,3 +1,18 @@
+{- |
+Module      :  FPTree.hs
+Description :  Representation of FPTree
+Copyright   :  Copyright (c) 2018 Pedro Faustini
+License     :  See LICENSE
+
+Maintainer  :  pedro.faustini@ufabc.edu.br
+Stability   :  stable
+Portability :  non-portable (Teste only in Linux)
+
+This module contains the definition of FPTree.
+It also contains functions alike to FPTree.
+-}
+
+
 module FPTree where
 
 minsup = 0.01 -- An item has to appear in at least xx% of all transactions
