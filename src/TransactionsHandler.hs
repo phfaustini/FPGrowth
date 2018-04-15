@@ -1,4 +1,26 @@
-module TransactionsReader where
+{- |
+Module      :  TransactionsHandler.hs
+Description :  Functions to deal with transactions.
+Copyright   :  Copyright (c) 2018 Pedro Faustini
+License     :  See LICENSE
+
+Maintainer  :  pedro.faustini@ufabc.edu.br
+Stability   :  stable
+Portability :  non-portable (Tested only in Linux)
+
+This module contains functions to deal with transaction items.
+The transactions are collected in Main.hs (through IO operations)
+and processed here.
+-}
+
+module TransactionsHandler
+(
+    countItems,
+    applyThreshold,
+    sortbyMostFrequent,
+    sortTransactions
+)
+where
 
 import FPTree
 import qualified Data.Map as Map
@@ -31,6 +53,7 @@ applyThreshold transactionsLength = Map.filter (>= minsup*transactionsLength)
 sortbyMostFrequent :: Ord a => Map.Map a1 a -> [(a1, a)]
 sortbyMostFrequent countItems = Data.List.sortBy (Data.Ord.comparing snd) (Map.toList countItems)
 
+-- | PRIVATE
 -- | Sort a transaction from the most to least commom element.
 sortTransaction transaction itemsCountAndSorted output -- itemsCountAndSorted is LIST
     | null itemsCountAndSorted = reverse output
