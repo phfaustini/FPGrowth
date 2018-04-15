@@ -1,5 +1,5 @@
 {- |
-Module      :  TransactionsReader.hs
+Module      :  TransactionsHandler.hs
 Description :  Functions to deal with transactions.
 Copyright   :  Copyright (c) 2018 Pedro Faustini
 License     :  See LICENSE
@@ -13,7 +13,14 @@ The transactions are collected in Main.hs (through IO operations)
 and processed here.
 -}
 
-module TransactionsReader where
+module TransactionsHandler
+(
+    countItems,
+    applyThreshold,
+    sortbyMostFrequent,
+    sortTransactions
+)
+where
 
 import FPTree
 import qualified Data.Map as Map

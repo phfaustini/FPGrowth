@@ -5,7 +5,7 @@ Copyright   :  Copyright (c) 2018 Pedro Faustini
 License     :  See LICENSE
 
 Maintainer  :  pedro.faustini@ufabc.edu.br
-Stability   :  provisional
+Stability   :  stable
 Portability :  non-portable (Tested only in Linux)
 
 This module is the Main module, the entry point of the program.
@@ -16,14 +16,14 @@ module Main where
 
 import System.Environment -- getArgs
 import Control.Parallel
-import TransactionsReader
+import TransactionsHandler
 import FPTree -- minsup
 import FPGrowth
 import qualified Data.Map as Map
 import Data.List -- intercalate
 
 readLines :: FilePath -> IO [String]
-readLines = fmap lines . readFile -- ["4 3 1",    "12 3 1",    "23 34 9",   "2","90 1",    "5 1 12"]
+readLines = fmap lines . readFile
 
 
 printFPTree :: FPNode -> String -> String
@@ -32,46 +32,46 @@ printFPTree node spaces
     | otherwise = "\n"++spaces ++ fpitem node ++ " : " ++show(fpcount node) ++ "  []"
 
 
---printTrees :: [FPNode] -> String -> String
-printTrees nodes output
-    | null nodes = output
-    | otherwise = printTrees (tail nodes) (printFPTree (head nodes) " ") ++ "\n--------------------------------\n" ++ output
-
 main::IO ()
 main = do
     args <- getArgs
     let filepath = head args
     fileContent <- readLines filepath -- "input/transactions.txt"
+    
+    {-
+        Step 1: Preprocessing.
+        Database is read.
+        TransactionsHandler functions now count items from transactions.
+        Then, the headerTable is built.
+        Last, infrequent items are pruned from the sorted transactions.
+    -}
     let transactions = map words fileContent
-    --print minsup
-    --print transactions
     let itemsCounted = countItems transactions (Map.fromList [])
-    --print itemsCounted -- MAP
     let itemsCountedAndPruned = applyThreshold (fromIntegral $ length transactions) itemsCounted  
-    --print itemsCountedAndPruned -- MAP
-    let headerTable = reverse $ sortbyMostFrequent itemsCounted
-    --print headerTable -- LIST
-    --putStrLn ""
     let headerTablePruned = reverse $ sortbyMostFrequent itemsCountedAndPruned
-    print headerTablePruned -- LIST
+    putStr "HeaderTable pruned: "
+    print headerTablePruned
     putStrLn ""
-    let sortedTransactions = sortTransactions transactions headerTable []
-    --print reverse sortedTransactions
     let sortedPrunedTransactions = sortTransactions transactions headerTablePruned []
-    --print $ reverse sortedPrunedTransactions
-    --putStrLn ""
+    
+
+    {-
+        Step 2: build FPTree
+    -}
     let root = FPNode "null" (length transactions) []
     let fptree = buildFPTree (reverse sortedPrunedTransactions) root
     putStr (printFPTree fptree " ")
     putStrLn "\n"
-    let prunedFPTree = prune (minsup * fromIntegral (length transactions)) fptree
-    --print prunedFPTree
-    --putStrLn ""
 
+
+    {-
+        Step 3: FPGrowth
+        Conditional pattern bases are extracted from FPTree, one base for each frequent item.
+        Frequent item sets are then mined.
+    -}
     let headerTablePrunedfromMintoMax = reverse headerTablePruned
-    let cpbs = buildConditionalPatternBase headerTablePrunedfromMintoMax prunedFPTree
-    --print cpbs
-    --putStrLn ""
-    let frequentItems = frequentPatternItems (rawFrequentPatternItems cpbs []) (ceiling (minsup * fromIntegral (length transactions)))
-    print frequentItems
+    let cpbs = buildConditionalPatternBase headerTablePrunedfromMintoMax fptree
+    let frequentSetsItems = frequentPatternItems (rawFrequentPatternItems cpbs []) (ceiling (minsup * fromIntegral (length transactions)))
+    putStr "Frequent sets of items: "
+    print frequentSetsItems
     putStrLn ""

@@ -5,14 +5,20 @@ Copyright   :  Copyright (c) 2018 Pedro Faustini
 License     :  See LICENSE
 
 Maintainer  :  pedro.faustini@ufabc.edu.br
-Stability   :  experimental
+Stability   :  stable
 Portability :  non-portable (Tested only in Linux)
 
 This module contains functions to retrieve frequent items from a FPTree.
 -}
 
 
-module FPGrowth where
+module FPGrowth 
+(
+    buildConditionalPatternBase,
+    rawFrequentPatternItems,
+    frequentPatternItems
+)
+where
 
 import FPTree
 import Data.List -- subsequences
@@ -53,41 +59,8 @@ buildConditionalPatternBase headerTable node
     | null headerTable = []
     | otherwise = headerTableToConditionalPatternBase headerTable node : buildConditionalPatternBase (tail headerTable) node
 
--- | PRIVATE
-conditionalFPTree :: (Eq a, Num a) => [(a, [String])] -> [(String, Double)] -> FPNode
-conditionalFPTree cpb headerTable = buildFPTree transactionsReversedNotNull (FPNode key (length transactionsReversedNotNull) []) -- prune??
-    where
-    transactions = replicateLists cpb -- map snd cpb
-    transactionsReversed = map reverse transactions
-    removeFirstLast l = init (drop 1 l)
-    transactionsReversedNotNull = filter (/= []) (map removeFirstLast transactionsReversed) -- "null" and element itself removed. Empties filtered out.
-    key = head (snd (head cpb))
-    t = findThreshold key headerTable
 
-
--- | PRIVATE 
-findThreshold :: String -> [(String, Double)] -> Double
-findThreshold key headerTable
-    | null headerTable = 0
-    | fst (head headerTable) == key = snd (head headerTable)
-    | otherwise = findThreshold key (tail headerTable)
-
-buildConditionalFPTree :: (Eq a, Num a) => [[(a, [String])]] -> [(String, Double)] -> [FPNode]
-buildConditionalFPTree cpbs headerTable = [ conditionalFPTree x headerTable | x <- cpbs]
-
--- | PRIVATE
-replicateList :: (Eq a, Num a) => (a, b) -> [b]
-replicateList pair 
-    | fst pair == 1 = [snd pair]
-    | otherwise = snd pair : replicateList (fst pair-1, snd pair)
-
--- | PRIVATE
-replicateLists :: (Eq a, Num a) => [(a, t)] -> [t]
-replicateLists pairs
-    | null pairs = []
-    | otherwise = replicateList (head pairs) ++ replicateLists (tail pairs)
-
-
+    
 -- | PRIVATE
 patternsCombination :: [(t, [String])] -> [(t, [[String]])] -> [(t, [[String]])]
 patternsCombination cpb output
@@ -120,7 +93,7 @@ reduceCombinations cpb myMap
     | otherwise = reduceCombinations (tail cpb) (reduceCombination (head cpb) myMap)
 
 
-
+-- | It mines ALL pattern items, regardless of minimum support.
 rawFrequentPatternItems :: Num a1 => [[(a1, [String])]] -> [Map [String] a1] -> [Map [String] a1]
 rawFrequentPatternItems cpbs frequentitems
     | null cpbs = frequentitems
@@ -129,5 +102,6 @@ rawFrequentPatternItems cpbs frequentitems
         cpb = patternsCombination (head cpbs) []
 
 
+-- | It extracts only the FREQUENT pattern items, according to minimum support. 
 frequentPatternItems :: Ord a => [Map a1 a] -> a -> [(a1, a)]
 frequentPatternItems frequentitemsmap minsup = [y | x<-frequentitemsmap, y <- Map.toList x, snd y >= minsup  ]
