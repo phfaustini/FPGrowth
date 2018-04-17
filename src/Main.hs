@@ -5,7 +5,7 @@ Copyright   :  Copyright (c) 2018 Pedro Faustini
 License     :  See LICENSE
 
 Maintainer  :  pedro.faustini@ufabc.edu.br
-Stability   :  stable
+Stability   :  experimental
 Portability :  non-portable (Tested only in Linux)
 
 This module is the Main module, the entry point of the program.
@@ -46,8 +46,8 @@ main = do
         Last, infrequent items are pruned from the sorted transactions.
     -}
     let transactions = map words fileContent
-    let itemsCounted = countItems transactions (Map.fromList [])
-    let itemsCountedAndPruned = applyThreshold (fromIntegral $ length transactions) itemsCounted  
+    let itemsCounted = countItems transactions -- itemsCounted is like [("I1",6),("I2",7),("I3",6),("I4",2),("I5",2)]
+    let itemsCountedAndPruned = applyThreshold (fromIntegral (length transactions)) itemsCounted  
     let headerTablePruned = reverse $ sortbyMostFrequent itemsCountedAndPruned
     putStr "HeaderTable pruned: "
     print headerTablePruned
