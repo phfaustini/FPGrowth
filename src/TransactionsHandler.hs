@@ -31,7 +31,7 @@ import Dados
 
 
 -- | Step1: Count how many times each item appears in all transactions
-countItems = mapReduceByKey (\x -> (x,1)) (+)
+countItems transactions = mapReduceByKey (\x -> (x,1)) (+) transactions
 
 
 -- | Step2: Eliminate items that do not appear in transactions enough.
@@ -44,7 +44,7 @@ applyThreshold transactionsLength = filter checkValue
 
 -- | Step3: Sort the list from most frequent item to the least one.
 --sortbyMostFrequent :: Ord a => Map.Map a1 a -> [(a1, a)]
-sortbyMostFrequent = Data.List.sortBy (Data.Ord.comparing snd)
+sortbyMostFrequent countItems = Data.List.sortBy (Data.Ord.comparing snd) countItems
 
 
 -- | PRIVATE
