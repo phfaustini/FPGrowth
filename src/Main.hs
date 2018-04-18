@@ -60,9 +60,9 @@ main = do
     -}
     let root = FPNode "null" (length transactions) []
     let fptree = buildFPTree (reverse sortedPrunedTransactions) root
-    putStr (printFPTree fptree " ")
-    putStrLn "\n"
-
+    --putStr (printFPTree fptree " ")
+    --putStrLn "\n"
+    print "FPTree built."
 
     {-
         Step 3: FPGrowth

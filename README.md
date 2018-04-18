@@ -33,6 +33,17 @@ $ cabal build
 $ ./dist/build/fpgrowth/fpgrowth <fileinputname> +RTS -N1 -s -ls -M2g
 ```
 
+where:
+
++RTS: embedded flags
+
+-Nx : number ot threads
+
+-s : runtime statistics.
+
+-ls : log for threadscope
+
+-M2g : maximum of 2GB RAM use.
 
 ## Author
 
