@@ -53,7 +53,6 @@ main = do
     print headerTablePruned
     putStrLn ""
     let sortedPrunedTransactions = sortTransactions transactions headerTablePruned []
-    
 
     {-
         Step 2: build FPTree
@@ -63,7 +62,8 @@ main = do
     --putStr (printFPTree fptree " ")
     --putStrLn "\n"
     print "FPTree built."
-
+    putStrLn ""
+    
     {-
         Step 3: FPGrowth
         Conditional pattern bases are extracted from FPTree, one base for each frequent item.
@@ -71,7 +71,13 @@ main = do
     -}
     let headerTablePrunedfromMintoMax = reverse headerTablePruned
     let cpbs = buildConditionalPatternBase headerTablePrunedfromMintoMax fptree
-    let frequentSetsItems = frequentPatternItems (rawFrequentPatternItems cpbs []) (ceiling (minsup * fromIntegral (length transactions)))
+    putStr "CPBS: "
+    print cpbs
+    putStrLn ""
+    let raw = rawFrequentPatternItems cpbs []
+    putStr "RAW "
+    print raw
+    let frequentSetsItems = frequentPatternItems raw (ceiling (minsup * fromIntegral (length transactions)))
     putStr "Frequent sets of items: "
     print frequentSetsItems
     putStrLn ""

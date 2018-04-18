@@ -105,4 +105,5 @@ rawFrequentPatternItems cpbs frequentitems
 
 -- | It extracts only the FREQUENT pattern items, according to minimum support. 
 frequentPatternItems :: Ord a => [Map a1 a] -> a -> [(a1, a)]
+frequentPatternItems [] _ = []
 frequentPatternItems frequentitemsmap minsup = [y | x<-frequentitemsmap, y <- Map.toList x, snd y >= minsup  ]
