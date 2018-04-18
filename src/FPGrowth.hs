@@ -25,6 +25,7 @@ import Data.List -- subsequences
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe
+import Dados
 
 -- | PRIVATE
 rawConditionalPatternBase :: String -> FPNode -> [String] -> [[String]]
@@ -59,7 +60,7 @@ buildConditionalPatternBase headerTable node
     | null headerTable = []
     | otherwise = headerTableToConditionalPatternBase headerTable node : buildConditionalPatternBase (tail headerTable) node
 
-
+-- -------------------------------------------------------------------------------------------------------------------------------
     
 -- | PRIVATE
 patternsCombination :: [(t, [String])] -> [(t, [[String]])] -> [(t, [[String]])]
@@ -69,7 +70,7 @@ patternsCombination cpb output
     where
         count = fst $ head cpb
         items = init (drop 1 (snd $ head cpb))
-        combinations = map (\x -> item : x) $ filter (/= []) $ subsequences items
+        combinations = parmap (\x -> item : x) $ filter (/= []) $ subsequences items
         item = head $ snd $ head cpb
 
 
@@ -86,7 +87,7 @@ reduceCombination subcpb myMap
             | otherwise = fromJust (Map.lookup key myMap) + fst subcpb
 
 
--- | PRIVATE
+-- | PRIVATE. Can parallelise, calling reduceCombination in parallel for each subcpb
 reduceCombinations :: (Num a1, Ord a) => [(a1, [a])] -> Map a a1 -> Map a a1
 reduceCombinations cpb myMap
     | null cpb = myMap
