@@ -28,18 +28,15 @@ import Data.Maybe
 import Data.List
 import Data.Ord
 import Dados
-
+import Control.Parallel
+import Control.Parallel.Strategies
 
 -- | Step1: Count how many times each item appears in all transactions
 countItems transactions = mapReduceByKey (\x -> (x,1)) (+) transactions
 
 
 -- | Step2: Eliminate items that do not appear in transactions enough.
-applyThreshold transactionsLength = filter checkValue
-    where 
-        checkValue tupl
-            | snd tupl > minsup*transactionsLength = True
-            | otherwise = False
+applyThreshold transactionsLength xs = filter (\(x,y) -> y > minsup*transactionsLength) xs `using` parList rdeepseq
 
 
 -- | Step3: Sort the list from most frequent item to the least one.

@@ -15,6 +15,8 @@ This module contains functions to retrieve frequent items from a FPTree.
 module FPGrowth 
 (
     buildConditionalPatternBase,
+    expandCPBS,
+    frequentPI,
     rawFrequentPatternItems,
     frequentPatternItems
 )
@@ -25,7 +27,8 @@ import Data.List -- subsequences
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe
-import Dados
+import Control.Parallel
+import Control.Parallel.Strategies
 
 -- | PRIVATE
 rawConditionalPatternBase :: String -> FPNode -> [String] -> [[String]]
@@ -60,8 +63,8 @@ buildConditionalPatternBase headerTable node
     | null headerTable = []
     | otherwise = headerTableToConditionalPatternBase headerTable node : buildConditionalPatternBase (tail headerTable) node
 
+
 -- -------------------------------------------------------------------------------------------------------------------------------
-    
 -- | PRIVATE
 patternsCombination :: [(t, [String])] -> [(t, [[String]])] -> [(t, [[String]])]
 patternsCombination cpb output
@@ -70,7 +73,7 @@ patternsCombination cpb output
     where
         count = fst $ head cpb
         items = init (drop 1 (snd $ head cpb))
-        combinations = parmap (\x -> item : x) $ filter (/= []) $ subsequences items
+        combinations = map (\x -> item : x) $ filter (/= []) $ subsequences items
         item = head $ snd $ head cpb
 
 
@@ -87,7 +90,7 @@ reduceCombination subcpb myMap
             | otherwise = fromJust (Map.lookup key myMap) + fst subcpb
 
 
--- | PRIVATE. Can parallelise, calling reduceCombination in parallel for each subcpb
+-- | PRIVATE
 reduceCombinations :: (Num a1, Ord a) => [(a1, [a])] -> Map a a1 -> Map a a1
 reduceCombinations cpb myMap
     | null cpb = myMap
@@ -105,5 +108,40 @@ rawFrequentPatternItems cpbs frequentitems
 
 -- | It extracts only the FREQUENT pattern items, according to minimum support. 
 frequentPatternItems :: Ord a => [Map a1 a] -> a -> [(a1, a)]
-frequentPatternItems [] _ = []
 frequentPatternItems frequentitemsmap minsup = [y | x<-frequentitemsmap, y <- Map.toList x, snd y >= minsup  ]
+
+
+
+
+-- -------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+-- | PRIVATE
+expandCPB :: Foldable t => t (Integer, [String]) -> [(String, Integer)]
+expandCPB = concatMap expandSubCPB
+
+-- | PRIVATE
+expandSubCPB :: (Integer, [String]) -> [(String, Integer)]
+expandSubCPB (count, xs) = [ (x, count) | x <- init (drop 1 xs) ]
+
+-- | PRIVATE
+reducecpb :: [(String, Integer)] -> [(String, Integer)]
+reducecpb = map (foo . unzip) . groupBy (\x y -> fst x == fst y) . sort            
+    where foo (names, vals) = (head names, sum vals)
+    
+expandCPBS cpbs minsup output
+    | null cpbs = output
+    | otherwise = expandCPBS (tail cpbs) minsup ( filter (\x -> snd x > minsup) (reducecpb (expandCPB (head cpbs))) : output)
+
+frequentPI reduced output
+    | null reduced = output
+    | otherwise = frequentPI (tail reduced) (subsequences $ map fst (head reduced)) ++ output
+
+
+
+

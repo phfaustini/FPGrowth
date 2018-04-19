@@ -36,8 +36,7 @@ main::IO ()
 main = do
     args <- getArgs
     let filepath = head args
-    fileContent <- readLines filepath -- "input/transactions.txt"
-    
+    fileContent <- readLines filepath -- "input/transactions.txt"    
     {-
         Step 1: Preprocessing.
         Database is read.
@@ -47,12 +46,16 @@ main = do
     -}
     let transactions = map words fileContent
     let itemsCounted = countItems transactions -- itemsCounted is like [("I1",6),("I2",7),("I3",6),("I4",2),("I5",2)]
+    let threshold = round $ minsup * fromIntegral (length transactions)
+    putStr "threshold: "
+    print threshold
+    putStrLn ""    
     let itemsCountedAndPruned = applyThreshold (fromIntegral (length transactions)) itemsCounted  
     let headerTablePruned = reverse $ sortbyMostFrequent itemsCountedAndPruned
     putStr "HeaderTable pruned: "
     print headerTablePruned
     putStrLn ""
-    let sortedPrunedTransactions = sortTransactions transactions headerTablePruned []
+    let sortedPrunedTransactions = sortTransactions transactions headerTablePruned []    
 
     {-
         Step 2: build FPTree
@@ -60,9 +63,7 @@ main = do
     let root = FPNode "null" (length transactions) []
     let fptree = buildFPTree (reverse sortedPrunedTransactions) root
     --putStr (printFPTree fptree " ")
-    --putStrLn "\n"
-    print "FPTree built."
-    putStrLn ""
+    --putStrLn ""
     
     {-
         Step 3: FPGrowth
@@ -71,13 +72,7 @@ main = do
     -}
     let headerTablePrunedfromMintoMax = reverse headerTablePruned
     let cpbs = buildConditionalPatternBase headerTablePrunedfromMintoMax fptree
-    putStr "CPBS: "
-    print cpbs
-    putStrLn ""
-    let raw = rawFrequentPatternItems cpbs []
-    putStr "RAW "
-    print raw
-    let frequentSetsItems = frequentPatternItems raw (ceiling (minsup * fromIntegral (length transactions)))
+    let frequentSetsItems = frequentPatternItems (rawFrequentPatternItems cpbs []) threshold
     putStr "Frequent sets of items: "
     print frequentSetsItems
     putStrLn ""
