@@ -35,7 +35,7 @@ $ ./dist/build/fpgrowth/fpgrowth <fileinputname> +RTS -N1 -s -ls -M2g
 
 where:
 
-+RTS: embedded flags
++RTS : embedded flags
 
 -Nx : number ot threads
 

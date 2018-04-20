@@ -65,4 +65,5 @@ insertTransaction transaction root
 buildFPTree :: [[String]] -> FPNode -> FPNode
 buildFPTree transactions node
     | null transactions = node
+    | null (head transactions) = buildFPTree (tail transactions) node
     | otherwise = buildFPTree (tail transactions) (insertTransaction (head transactions) node)

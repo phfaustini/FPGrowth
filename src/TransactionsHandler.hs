@@ -41,7 +41,7 @@ applyThreshold transactionsLength xs = filter (\(x,y) -> y > minsup*transactions
 
 -- | Step3: Sort the list from most frequent item to the least one.
 --sortbyMostFrequent :: Ord a => Map.Map a1 a -> [(a1, a)]
-sortbyMostFrequent countItems = Data.List.sortBy (Data.Ord.comparing snd) countItems
+sortbyMostFrequent countItems = Data.List.sortBy (Data.Ord.comparing snd) countItems `using` parList rdeepseq
 
 
 -- | PRIVATE
@@ -56,3 +56,4 @@ sortTransaction transaction itemsCountAndSorted output -- itemsCountAndSorted is
 sortTransactions transactions itemsCountAndSorted output -- itemsCountAndSorted is LIST
     | null transactions = output
     | otherwise = sortTransactions (tail transactions) itemsCountAndSorted output ++ [sortTransaction (head transactions) itemsCountAndSorted []]
+    

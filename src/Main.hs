@@ -37,6 +37,8 @@ main = do
     args <- getArgs
     let filepath = head args
     fileContent <- readLines filepath -- "input/transactions.txt"    
+
+    
     {-
         Step 1: Preprocessing.
         Database is read.
@@ -56,6 +58,8 @@ main = do
     print headerTablePruned
     putStrLn ""
     let sortedPrunedTransactions = sortTransactions transactions headerTablePruned []    
+    -- print sortedPrunedTransactions
+
 
     {-
         Step 2: build FPTree
@@ -63,8 +67,9 @@ main = do
     let root = FPNode "null" (length transactions) []
     let fptree = buildFPTree (reverse sortedPrunedTransactions) root
     --putStr (printFPTree fptree " ")
-    --putStrLn ""
+    putStrLn ""
     
+
     {-
         Step 3: FPGrowth
         Conditional pattern bases are extracted from FPTree, one base for each frequent item.

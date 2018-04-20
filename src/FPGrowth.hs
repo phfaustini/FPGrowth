@@ -5,7 +5,7 @@ Copyright   :  Copyright (c) 2018 Pedro Faustini
 License     :  See LICENSE
 
 Maintainer  :  pedro.faustini@ufabc.edu.br
-Stability   :  stable
+Stability   :  experimental
 Portability :  non-portable (Tested only in Linux)
 
 This module contains functions to retrieve frequent items from a FPTree.
