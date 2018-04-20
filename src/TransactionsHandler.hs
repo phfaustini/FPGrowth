@@ -22,13 +22,10 @@ module TransactionsHandler
 )
 where
 
-import FPTree
-import qualified Data.Map as Map
-import Data.Maybe
-import Data.List
-import Data.Ord
+import FPTree -- minsup
+import Data.List -- sortBy
+import Data.Ord -- comparing
 import Dados
-import Control.Parallel
 import Control.Parallel.Strategies
 
 -- | Step1: Count how many times each item appears in all transactions
@@ -36,24 +33,18 @@ countItems transactions = mapReduceByKey (\x -> (x,1)) (+) transactions
 
 
 -- | Step2: Eliminate items that do not appear in transactions enough.
-applyThreshold transactionsLength xs = filter (\(x,y) -> y > minsup*transactionsLength) xs `using` parList rdeepseq
+applyThreshold transactionsLength xs = filter (\(x,y) -> y > minsup*transactionsLength) xs `using` parListChunk 4 rdeepseq
 
 
 -- | Step3: Sort the list from most frequent item to the least one.
 --sortbyMostFrequent :: Ord a => Map.Map a1 a -> [(a1, a)]
-sortbyMostFrequent countItems = Data.List.sortBy (Data.Ord.comparing snd) countItems `using` parList rdeepseq
+sortbyMostFrequent countItems = Data.List.sortBy (Data.Ord.comparing snd) countItems `using` parListChunk 4 rdeepseq
 
 
 -- | PRIVATE
 -- | Sort a transaction from the most to least commom element.
-sortTransaction transaction itemsCountAndSorted output -- itemsCountAndSorted is LIST
-    | null itemsCountAndSorted = reverse output
-    | target `elem` transaction = sortTransaction transaction (tail itemsCountAndSorted) (target:output)
-    | otherwise = sortTransaction transaction (tail itemsCountAndSorted) output
-    where
-        target = fst $ head itemsCountAndSorted
+sortTransaction transaction headerTable = [fst x | x <- headerTable, fst x `elem` transaction]
 
-sortTransactions transactions itemsCountAndSorted output -- itemsCountAndSorted is LIST
-    | null transactions = output
-    | otherwise = sortTransactions (tail transactions) itemsCountAndSorted (sortTransaction (head transactions) itemsCountAndSorted [] : output)
-    
+
+-- | Sort each transaction from most to least common element in header table.
+sortTransactions transactions itemsCountAndSorted = concat ([[sortTransaction x itemsCountAndSorted | x <- transactions]]) `using` parListChunk 4 rdeepseq

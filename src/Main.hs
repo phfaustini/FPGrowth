@@ -15,7 +15,7 @@ All impure actions, like IO, are contained here, and only here.
 module Main where
 
 import System.Environment -- getArgs
-import Control.Parallel
+import Control.Parallel.Strategies
 import TransactionsHandler
 import FPTree -- minsup
 import FPGrowth
@@ -46,20 +46,20 @@ main = do
         Then, the headerTable is built.
         Last, infrequent items are pruned from the sorted transactions.
     -}
-    let transactions = map words fileContent
+    let transactions = map words fileContent `using` parListChunk 4 rdeepseq
     let itemsCounted = countItems transactions -- itemsCounted is like [("I1",6),("I2",7),("I3",6),("I4",2),("I5",2)]
     let transactionsSize = length transactions
     let threshold = round $ minsup * fromIntegral transactionsSize
     putStr "threshold: "
     print threshold
     putStrLn ""    
-    let itemsCountedAndPruned = applyThreshold (fromIntegral transactionsSize) itemsCounted  
+    let itemsCountedAndPruned = applyThreshold (fromIntegral transactionsSize) itemsCounted
     let headerTablePruned = sortbyMostFrequent itemsCountedAndPruned
-    let headerTablePrunedReversed = reverse headerTablePruned 
+    let headerTablePrunedReversed = reverse headerTablePruned
     putStr "HeaderTableReversed pruned: "
     print headerTablePrunedReversed
     putStrLn ""
-    let sortedPrunedTransactions = sortTransactions transactions headerTablePrunedReversed []    
+    let sortedPrunedTransactions = sortTransactions transactions headerTablePrunedReversed  
     putStr "Transactions Pruned: "
     print sortedPrunedTransactions
 
