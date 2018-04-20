@@ -55,5 +55,5 @@ sortTransaction transaction itemsCountAndSorted output -- itemsCountAndSorted is
 
 sortTransactions transactions itemsCountAndSorted output -- itemsCountAndSorted is LIST
     | null transactions = output
-    | otherwise = sortTransactions (tail transactions) itemsCountAndSorted output ++ [sortTransaction (head transactions) itemsCountAndSorted []]
+    | otherwise = sortTransactions (tail transactions) itemsCountAndSorted (sortTransaction (head transactions) itemsCountAndSorted [] : output)
     
