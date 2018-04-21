@@ -70,7 +70,7 @@ main = do
     let root = FPNode "null" transactionsSize []
     let fptree = buildFPTree sortedPrunedTransactions root
     putStr (printFPTree fptree " ")
-    putStrLn ""
+    putStrLn "\n"
     
 
     {-
@@ -80,7 +80,10 @@ main = do
     -}
     let headerTablePrunedfromMintoMax = headerTablePruned
     let cpbs = buildConditionalPatternBase headerTablePrunedfromMintoMax fptree
-    let frequentSetsItems = frequentPatternItems (rawFrequentPatternItems cpbs []) threshold
+    putStr "CPBS: "
+    print cpbs
+    putStrLn ""
+    let frequentSetsItems = frequentPatternItems cpbs threshold
     putStr "Frequent sets of items: "
     print frequentSetsItems
     putStrLn ""
