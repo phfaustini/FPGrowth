@@ -65,10 +65,10 @@ buildConditionalPatternBase headerTable node
 subCPBtoKeyValue subcpb = map (\x -> (head (snd subcpb) : x, fst subcpb)) (subsequences (init (drop 1 (snd subcpb))))
 
 -- | PRIVATE
-concatsubcpbs cpb = concat ([subCPBtoKeyValue sub | sub <- cpb])
+concatsubcpbs cpb = concat [subCPBtoKeyValue sub | sub <- cpb]
 
 -- | PRIVATE
 frequentPatternCPB threshold cpb = filter (\x -> snd x >= threshold) $ combine (+) $ concatsubcpbs cpb
 
-frequentPatternItems cpbs threshold = [ frequentPatternCPB threshold cpb | cpb <- cpbs ]
+frequentPatternItems cpbs threshold = [ frequentPatternCPB threshold cpb | cpb <- cpbs ] `using` parListChunk 4 rdeepseq
 
