@@ -61,7 +61,7 @@ main = do
     putStrLn ""
     let sortedPrunedTransactions = sortTransactions transactions headerTablePrunedReversed  
     putStr "Transactions Pruned: "
-    print sortedPrunedTransactions
+    --print sortedPrunedTransactions
 
 
     {-
@@ -69,7 +69,7 @@ main = do
     -}
     let root = FPNode "null" transactionsSize []
     let fptree = buildFPTree sortedPrunedTransactions root
-    putStr (printFPTree fptree " ")
+    --putStr (printFPTree fptree " ")
     putStrLn "\n"
     
 

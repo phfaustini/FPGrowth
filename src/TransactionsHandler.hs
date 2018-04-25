@@ -28,17 +28,19 @@ import Data.Ord -- comparing
 import Dados
 import Control.Parallel.Strategies
 
+numberChunks = 8
+
 -- | Step1: Count how many times each item appears in all transactions
 countItems transactions = mapReduceByKey (\x -> (x,1)) (+) transactions
 
 
 -- | Step2: Eliminate items that do not appear in transactions enough.
-applyThreshold transactionsLength xs = filter (\(x,y) -> y > minsup*transactionsLength) xs `using` parListChunk 4 rdeepseq
+applyThreshold transactionsLength xs = filter (\(x,y) -> y > minsup*transactionsLength) xs `using` parListChunk numberChunks rdeepseq
 
 
 -- | Step3: Sort the list from most frequent item to the least one.
 --sortbyMostFrequent :: Ord a => Map.Map a1 a -> [(a1, a)]
-sortbyMostFrequent countItems = Data.List.sortBy (Data.Ord.comparing snd) countItems `using` parListChunk 4 rdeepseq
+sortbyMostFrequent countItems = Data.List.sortBy (Data.Ord.comparing snd) countItems `using` parListChunk numberChunks rdeepseq
 
 
 -- | PRIVATE
@@ -47,4 +49,4 @@ sortTransaction transaction headerTable = [fst x | x <- headerTable, fst x `elem
 
 
 -- | Sort each transaction from most to least common element in header table.
-sortTransactions transactions itemsCountAndSorted = concat ([[sortTransaction x itemsCountAndSorted | x <- transactions]]) `using` parListChunk 4 rdeepseq
+sortTransactions transactions itemsCountAndSorted = concat ([[sortTransaction x itemsCountAndSorted | x <- transactions]]) `using` parListChunk numberChunks rdeepseq

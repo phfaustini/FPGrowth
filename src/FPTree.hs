@@ -24,9 +24,9 @@ module FPTree
 )
  where
 
-minsup = 0.8 -- An item has to appear in at least xx% of all transactions
+minsup = 0.55 -- An item has to appear in at least xx% of all transactions
 
-data FPNode = FPNode { fpitem :: String, fpcount :: Int, fpchildren :: [FPNode]} deriving (Show, Eq)
+data FPNode = FPNode { fpitem :: String, fpcount :: Int, fpchildren :: ! [FPNode]} deriving (Show, Eq)
 
 -- | PRIVATE
 -- | It is NOT recursive on children!

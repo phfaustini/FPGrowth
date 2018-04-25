@@ -30,7 +30,7 @@ $ cabal build
 * In the root folder, type
 
 ```
-$ ./dist/build/fpgrowth/fpgrowth <fileinputname> +RTS -N1 -s -ls -M2g
+$ ./dist/build/fpgrowth/fpgrowth <fileinputname> +RTS -N4 -s -ls -M3g
 ```
 
 where:

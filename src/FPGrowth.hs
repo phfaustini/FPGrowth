@@ -25,6 +25,10 @@ import Control.Parallel
 import Control.Parallel.Strategies
 import Dados
 
+
+numberChunks = 8
+
+
 -- | PRIVATE
 rawConditionalPatternBase :: String -> FPNode -> [String] -> [[String]]
 rawConditionalPatternBase key node path 
@@ -33,7 +37,7 @@ rawConditionalPatternBase key node path
     | not (null rawCecursiveCall) = concatCPB rawCecursiveCall
     | otherwise = []
     where
-        rawCecursiveCall = [rawConditionalPatternBase key x (fpitem node : path) | x <- fpchildren node ]
+        rawCecursiveCall = [rawConditionalPatternBase key x (fpitem node : path) | x <- fpchildren node ] --`using` parListChunk numberChunks rdeepseq
 
 -- | PRIVATE
 concatCPB :: [[[String]]] -> [[String]]
@@ -48,15 +52,13 @@ conditionalPatternBase raw output
     | otherwise = conditionalPatternBase (tail (tail raw))  (( read (head (head raw)) :: Integer, head (tail raw) ) : output)
 
 -- | PRIVATE
-headerTableToConditionalPatternBase :: [(String, b)] -> FPNode -> [(Integer, [String])]
+--headerTableToConditionalPatternBase :: [(String, b)] -> FPNode -> [(Integer, [String])]
 headerTableToConditionalPatternBase headerTable node
     | null headerTable = []
-    | otherwise = conditionalPatternBase (rawConditionalPatternBase (fst (head headerTable)) node []) []
+    | otherwise = conditionalPatternBase (rawConditionalPatternBase (fst headerTable) node []) []
 
-buildConditionalPatternBase :: [(String, b)] -> FPNode -> [[(Integer, [String])]]
-buildConditionalPatternBase headerTable node
-    | null headerTable = []
-    | otherwise = headerTableToConditionalPatternBase headerTable node : buildConditionalPatternBase (tail headerTable) node
+--buildConditionalPatternBase :: [(String, b)] -> FPNode -> [[(Integer, [String])]]
+buildConditionalPatternBase headerTable node = [headerTableToConditionalPatternBase h node | h <- headerTable] `using` parListChunk numberChunks rdeepseq
 
 
 -- -------------------------------------------------------------------------------------------------------------------------------
@@ -70,5 +72,5 @@ concatsubcpbs cpb = concat [subCPBtoKeyValue sub | sub <- cpb]
 -- | PRIVATE
 frequentPatternCPB threshold cpb = filter (\x -> snd x >= threshold) $ combine (+) $ concatsubcpbs cpb
 
-frequentPatternItems cpbs threshold = [ frequentPatternCPB threshold cpb | cpb <- cpbs ] `using` parListChunk 4 rdeepseq
+frequentPatternItems cpbs threshold = [ frequentPatternCPB threshold cpb | cpb <- cpbs ] `using` parListChunk numberChunks rdeepseq
 

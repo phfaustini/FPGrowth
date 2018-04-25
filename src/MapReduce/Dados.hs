@@ -57,7 +57,7 @@ mapReduceByKey  :: (NFData k, NFData v, Ord k)
                 => (a -> (k, v)) -> (v -> v -> v) -> ChunksOf [a] -> [(k, v)]
 mapReduceByKey f g xs = combine g 
                      $ concat 
-                     $ (map f' xs 
+                     $! (map f' xs 
                           `using` parList rdeepseq)
   where
     f' xi = combine g $ map f xi
