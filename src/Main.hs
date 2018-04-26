@@ -17,10 +17,11 @@ module Main where
 import System.Environment -- getArgs
 import Control.Parallel.Strategies
 import TransactionsHandler
-import FPTree -- minsup
+import FPTree -- minsup, numberChunks
 import FPGrowth
 import qualified Data.Map as Map
 import Data.List -- intercalate
+import Data.List.Split -- chunksOf n list
 
 readLines :: FilePath -> IO [String]
 readLines = fmap lines . readFile
@@ -46,22 +47,22 @@ main = do
         Then, the headerTable is built.
         Last, infrequent items are pruned from the sorted transactions.
     -}
-    let transactions = map words fileContent `using` parListChunk 4 rdeepseq
+    let transactions = map words fileContent `using` parListChunk numberChunks rdeepseq
     let itemsCounted = countItems transactions -- itemsCounted is like [("I1",6),("I2",7),("I3",6),("I4",2),("I5",2)]
     let transactionsSize = length transactions
     let threshold = round $ minsup * fromIntegral transactionsSize
-    putStr "threshold: "
+    putStr "threshold "
     print threshold
     putStrLn ""    
     let itemsCountedAndPruned = applyThreshold (fromIntegral transactionsSize) itemsCounted
     let headerTablePruned = sortbyMostFrequent itemsCountedAndPruned
     let headerTablePrunedReversed = reverse headerTablePruned
-    putStr "HeaderTableReversed pruned: "
+    putStr "HeaderTableReversed pruned "
     print headerTablePrunedReversed
     putStrLn ""
-    let sortedPrunedTransactions = sortTransactions transactions headerTablePrunedReversed  
-    putStr "Transactions Pruned: "
-    --print sortedPrunedTransactions
+    let sortedPrunedTransactions = chunksOf numberChunks $ sortTransactions transactions headerTablePrunedReversed  
+    putStr "Transactions Pruned "
+    print sortedPrunedTransactions
 
 
     {-
@@ -69,7 +70,7 @@ main = do
     -}
     let root = FPNode "null" transactionsSize []
     let fptree = buildFPTree sortedPrunedTransactions root
-    --putStr (printFPTree fptree " ")
+    putStr (printFPTree fptree " ")
     putStrLn "\n"
     
 
@@ -80,10 +81,10 @@ main = do
     -}
     let headerTablePrunedfromMintoMax = headerTablePruned
     let cpbs = buildConditionalPatternBase headerTablePrunedfromMintoMax fptree
-    putStr "CPBS: "
+    putStr "CPBS "
     print cpbs
     putStrLn ""
     let frequentSetsItems = frequentPatternItems cpbs threshold
-    putStr "Frequent sets of items: "
+    putStrLn "Frequent sets of items "
     print frequentSetsItems
     putStrLn ""

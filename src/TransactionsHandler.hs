@@ -22,13 +22,12 @@ module TransactionsHandler
 )
 where
 
-import FPTree -- minsup
+import FPTree -- minsup, numberChunks
 import Data.List -- sortBy
 import Data.Ord -- comparing
 import Dados
 import Control.Parallel.Strategies
 
-numberChunks = 8
 
 -- | Step1: Count how many times each item appears in all transactions
 countItems transactions = mapReduceByKey (\x -> (x,1)) (+) transactions

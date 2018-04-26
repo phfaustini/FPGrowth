@@ -15,6 +15,7 @@ It also contains functions alike to FPTree.
 
 module FPTree
 (
+    numberChunks,
     buildFPTree, 
     minsup,
     FPNode (FPNode),
@@ -24,7 +25,11 @@ module FPTree
 )
  where
 
-minsup = 0.55 -- An item has to appear in at least xx% of all transactions
+import Control.Parallel.Strategies
+import Dados
+numberChunks = 8 :: Int
+
+minsup = 0.90 -- An item has to appear in at least xx% of all transactions
 
 data FPNode = FPNode { fpitem :: String, fpcount :: Int, fpchildren :: ! [FPNode]} deriving (Show, Eq)
 
@@ -59,11 +64,16 @@ insertTransaction transaction root
     where 
         toBeIncluded = length transaction
         incrementFPCountSomeChild = hasChild (head transaction) (fpchildren root)
-        otherChildren = [x | x <- fpchildren root, fpitem x /= head transaction]
+        otherChildren = [x | x <- fpchildren root, fpitem x /= head transaction] 
     
 
-buildFPTree :: [[String]] -> FPNode -> FPNode
-buildFPTree transactions node
-    | null transactions = node
-    | null (head transactions) = buildFPTree (tail transactions) node
-    | otherwise = buildFPTree (tail transactions) (insertTransaction (head transactions) node)
+buildFPTreefromChunk :: FPNode -> [[String]] ->FPNode
+buildFPTreefromChunk node chunkOfTransactions
+    | null chunkOfTransactions = node
+    | null (head chunkOfTransactions) = buildFPTreefromChunk node (tail chunkOfTransactions)
+    | otherwise = buildFPTreefromChunk (insertTransaction (head chunkOfTransactions) node) (tail chunkOfTransactions)
+
+
+buildFPTree :: [[[String]]] -> FPNode -> FPNode
+buildFPTree list_transactions node = joinTree $! (map (buildFPTreefromChunk node) list_transactions `using` parList rseq)
+    where joinTree tree = FPNode (fpitem node) (fpcount node) [ children | nodenull <- tree, children <- fpchildren nodenull]

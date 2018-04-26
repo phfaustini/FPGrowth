@@ -19,14 +19,11 @@ module FPGrowth
 )
 where
 
-import FPTree
+import FPTree -- numberChunks
 import Data.List -- subsequences
 import Control.Parallel
 import Control.Parallel.Strategies
 import Dados
-
-
-numberChunks = 8
 
 
 -- | PRIVATE
@@ -64,10 +61,10 @@ buildConditionalPatternBase headerTable node = [headerTableToConditionalPatternB
 -- -------------------------------------------------------------------------------------------------------------------------------
 
 -- | PRIVATE
-subCPBtoKeyValue subcpb = map (\x -> (head (snd subcpb) : x, fst subcpb)) (subsequences (init (drop 1 (snd subcpb))))
+subCPBtoKeyValue subcpb = parmap (\x -> (head (snd subcpb) : x, fst subcpb)) (subsequences (init (drop 1 (snd subcpb))))
 
 -- | PRIVATE
-concatsubcpbs cpb = concat [subCPBtoKeyValue sub | sub <- cpb]
+concatsubcpbs cpb = concat ([subCPBtoKeyValue sub | sub <- cpb]) `using` parListChunk numberChunks rdeepseq
 
 -- | PRIVATE
 frequentPatternCPB threshold cpb = filter (\x -> snd x >= threshold) $ combine (+) $ concatsubcpbs cpb
