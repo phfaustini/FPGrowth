@@ -23,10 +23,7 @@ module TransactionsHandler
 where
 
 import FPTree -- minsup, numberChunks
-import Data.List -- sortBy
-import Data.Ord -- comparing
 import Dados
-import Control.Parallel.Strategies
 
 
 -- | Step1: Count how many times each item appears in all transactions
@@ -34,18 +31,17 @@ countItems transactions = mapReduceByKey (\x -> (x,1)) (+) transactions
 
 
 -- | Step2: Eliminate items that do not appear in transactions enough.
-applyThreshold transactionsLength xs = filter (\(x,y) -> y > minsup*transactionsLength) xs `using` parListChunk numberChunks rdeepseq
+applyThreshold transactionsLength xs = parfilter (\(x,y) -> y > minsup*transactionsLength) xs 
 
 
 -- | Step3: Sort the list from most frequent item to the least one.
---sortbyMostFrequent :: Ord a => Map.Map a1 a -> [(a1, a)]
-sortbyMostFrequent countItems = Data.List.sortBy (Data.Ord.comparing snd) countItems `using` parListChunk numberChunks rdeepseq
+sortbyMostFrequent countItems = sortByKey countItems
 
 
 -- | PRIVATE
 -- | Sort a transaction from the most to least commom element.
-sortTransaction transaction headerTable = [fst x | x <- headerTable, fst x `elem` transaction]
+sortTransaction headerTable transaction = [fst x | x <- headerTable, fst x `elem` transaction]
 
 
 -- | Sort each transaction from most to least common element in header table.
-sortTransactions transactions itemsCountAndSorted = concat ([[sortTransaction x itemsCountAndSorted | x <- transactions]]) `using` parListChunk numberChunks rdeepseq
+sortTransactions transactions itemsCountAndSorted = parmap (sortTransaction itemsCountAndSorted) transactions

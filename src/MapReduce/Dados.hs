@@ -72,3 +72,5 @@ takeOrdered k f xs = take k
     f' xi = take k $ sortByKey $ map f xi
 
 
+-- modified from https://gist.github.com/cheecheeo/4229228
+parfilter p = withStrategy (parList rdeepseq) . filter p

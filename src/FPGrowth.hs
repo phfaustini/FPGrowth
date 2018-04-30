@@ -19,10 +19,8 @@ module FPGrowth
 )
 where
 
-import FPTree -- numberChunks
+import FPTree
 import Data.List -- subsequences
-import Control.Parallel
-import Control.Parallel.Strategies
 import Dados
 
 
@@ -34,7 +32,7 @@ rawConditionalPatternBase key node path
     | not (null rawCecursiveCall) = concatCPB rawCecursiveCall
     | otherwise = []
     where
-        rawCecursiveCall = [rawConditionalPatternBase key x (fpitem node : path) | x <- fpchildren node ] --`using` parListChunk numberChunks rdeepseq
+        rawCecursiveCall = [rawConditionalPatternBase key x (fpitem node : path) | x <- fpchildren node ]
 
 -- | PRIVATE
 concatCPB :: [[[String]]] -> [[String]]
@@ -50,24 +48,22 @@ conditionalPatternBase raw output
 
 -- | PRIVATE
 --headerTableToConditionalPatternBase :: [(String, b)] -> FPNode -> [(Integer, [String])]
-headerTableToConditionalPatternBase headerTable node
+headerTableToConditionalPatternBase node headerTable
     | null headerTable = []
     | otherwise = conditionalPatternBase (rawConditionalPatternBase (fst headerTable) node []) []
 
 --buildConditionalPatternBase :: [(String, b)] -> FPNode -> [[(Integer, [String])]]
-buildConditionalPatternBase headerTable node = [headerTableToConditionalPatternBase h node | h <- headerTable] `using` parListChunk numberChunks rdeepseq
-
+buildConditionalPatternBase headerTable node = parmap (headerTableToConditionalPatternBase node) headerTable
 
 -- -------------------------------------------------------------------------------------------------------------------------------
 
 -- | PRIVATE
-subCPBtoKeyValue subcpb = parmap (\x -> (head (snd subcpb) : x, fst subcpb)) (subsequences (init (drop 1 (snd subcpb))))
+subCPBtoKeyValue subcpb = map (\x -> (head (snd subcpb) : x, fst subcpb)) (subsequences (init (drop 1 (snd subcpb)))) -- fizzled if parmap
 
 -- | PRIVATE
-concatsubcpbs cpb = concat ([subCPBtoKeyValue sub | sub <- cpb]) `using` parListChunk numberChunks rdeepseq
+concatsubcpbs cpb = concat [subCPBtoKeyValue sub | sub <- cpb]
 
 -- | PRIVATE
-frequentPatternCPB threshold cpb = filter (\x -> snd x >= threshold) $ combine (+) $ concatsubcpbs cpb
+frequentPatternCPB threshold cpb = parfilter (\x -> snd x >= threshold) $ combine (+) $ concatsubcpbs cpb
 
-frequentPatternItems cpbs threshold = [ frequentPatternCPB threshold cpb | cpb <- cpbs ] `using` parListChunk numberChunks rdeepseq
-
+frequentPatternItems cpbs threshold = parmap (frequentPatternCPB threshold) cpbs

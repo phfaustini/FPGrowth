@@ -27,9 +27,9 @@ module FPTree
 
 import Control.Parallel.Strategies
 import Dados
-numberChunks = 8 :: Int
+numberChunks = 64 :: Int
 
-minsup = 0.90 -- An item has to appear in at least xx% of all transactions
+minsup = 0.9 -- An item has to appear in at least xx% of all transactions
 
 data FPNode = FPNode { fpitem :: String, fpcount :: Int, fpchildren :: ! [FPNode]} deriving (Show, Eq)
 
@@ -75,5 +75,5 @@ buildFPTreefromChunk node chunkOfTransactions
 
 
 buildFPTree :: [[[String]]] -> FPNode -> FPNode
-buildFPTree list_transactions node = joinTree $! (map (buildFPTreefromChunk node) list_transactions `using` parList rseq)
+buildFPTree list_transactions node = joinTree $! (map (buildFPTreefromChunk node) list_transactions `using` parListChunk numberChunks rseq)
     where joinTree tree = FPNode (fpitem node) (fpcount node) [ children | nodenull <- tree, children <- fpchildren nodenull]
