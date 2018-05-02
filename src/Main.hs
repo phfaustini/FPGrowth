@@ -5,7 +5,7 @@ Copyright   :  Copyright (c) 2018 Pedro Faustini
 License     :  See LICENSE
 
 Maintainer  :  pedro.faustini@ufabc.edu.br
-Stability   :  experimental
+Stability   :  stable
 Portability :  non-portable (Tested only in Linux)
 
 This module is the Main module, the entry point of the program.

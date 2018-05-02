@@ -20,6 +20,6 @@ executable fpgrowth
   -- other-modules:       
   -- other-extensions:
   ghc-options:         -threaded -eventlog -rtsopts -O2
-  build-depends:       base >=4.8 && <4.9, parallel, containers, split
+  build-depends:       base >=4.8 && <4.9, parallel, deepseq, containers, split
   hs-source-dirs:      src, src/MapReduce
   default-language:    Haskell2010

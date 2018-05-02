@@ -71,6 +71,7 @@ takeOrdered k f xs = take k
   where                   
     f' xi = take k $ sortByKey $ map f xi
 
+parmapChunks f xs = (map f xs `using` parListChunk 2 rdeepseq)
 
 -- modified from https://gist.github.com/cheecheeo/4229228
 parfilter p = withStrategy (parList rdeepseq) . filter p
