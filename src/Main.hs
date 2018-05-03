@@ -52,27 +52,29 @@ main = do
     let transactionsSize = length transactions
     let threshold = round $ minsup * fromIntegral transactionsSize
     putStr "threshold "
-    --print threshold
+    print threshold
     putStrLn ""    
     let itemsCountedAndPruned = applyThreshold (fromIntegral transactionsSize) itemsCounted
     
     let headerTablePruned = sortbyMostFrequent itemsCountedAndPruned
     let headerTablePrunedReversed = reverse headerTablePruned
     putStr "HeaderTableReversed pruned "
-    --print headerTablePrunedReversed
+    print headerTablePrunedReversed
     putStrLn ""
 
-    let sortedPrunedTransactions = chunksOf numberChunks $ sortTransactions transactions headerTablePrunedReversed  
+    --let sortedPrunedTransactions = chunksOf numberChunks $! sortTransactions transactions headerTablePrunedReversed  
+    let sortedPrunedTransactions = sortTransactions transactions headerTablePrunedReversed
     putStr "Transactions Pruned "
-    --print sortedPrunedTransactions
-
+    print sortedPrunedTransactions
+    
 
     {-
         Step 2: build FPTree
     -}
     let root = FPNode "null" transactionsSize []
-    let fptree = buildFPTree sortedPrunedTransactions root
-    --putStr (printFPTree fptree " ")
+    --let fptree = buildFPTree root sortedPrunedTransactions
+    let fptree = buildFPTreefromChunk root sortedPrunedTransactions
+    putStr (printFPTree fptree " ")
     putStrLn "\n"
     
 
@@ -84,7 +86,7 @@ main = do
     let headerTablePrunedfromMintoMax = headerTablePruned
     let cpbs = buildConditionalPatternBase headerTablePrunedfromMintoMax fptree
     putStr "CPBS "
-    --print cpbs
+    print cpbs
     putStrLn ""
     let frequentSetsItems = frequentPatternItems cpbs threshold
     putStrLn "Frequent sets of items "

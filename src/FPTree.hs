@@ -17,6 +17,7 @@ module FPTree
 (
     numberChunks,
     buildFPTree, 
+    buildFPTreefromChunk,
     minsup,
     FPNode (FPNode),
     fpitem,
@@ -31,9 +32,9 @@ import Control.DeepSeq
 import Dados
 numberChunks = 2 :: Int
 
-minsup = 0.9 -- An item has to appear in at least xx% of all transactions
+minsup = 0.82 -- An item has to appear in at least xx% of all transactions
 
-data FPNode = FPNode { fpitem :: String, fpcount :: Int, fpchildren :: ! [FPNode]} deriving (Show, Eq)
+data FPNode = FPNode { fpitem :: ! String, fpcount :: ! Int, fpchildren :: ! [FPNode]} deriving (Show, Eq)
 
 instance NFData FPNode where -- Make FPNode compatible with haskell parallelism
     rnf (FPNode a b c) = rnf a `seq` rnf b `seq` rnf c
@@ -79,8 +80,7 @@ buildFPTreefromChunk node chunkOfTransactions
     | otherwise = buildFPTreefromChunk (insertTransaction (head chunkOfTransactions) node) (tail chunkOfTransactions)
 
 
---buildFPTree :: [[[String]]] -> FPNode -> FPNode
---buildFPTree list_transactions node = joinTree $! (parmap (buildFPTreefromChunk node) list_transactions)
---    where joinTree tree = FPNode (fpitem node) (fpcount node) [ children | nodenull <- tree, children <- fpchildren nodenull]
-buildFPTree list_transactions node = foldl1' joinTree $ parmapChunks (buildFPTreefromChunk node) list_transactions
-    where joinTree tree1 tree2 = FPNode (fpitem node) (fpcount node) ((fpchildren tree1) ++ (fpchildren tree2))
+buildFPTree :: [[[String]]] -> FPNode -> FPNode
+buildFPTree list_transactions node = joinTree $! parmap (buildFPTreefromChunk node) list_transactions
+    where joinTree tree = FPNode (fpitem node) (fpcount node) [ children | nodenull <- tree, children <- fpchildren nodenull]
+
