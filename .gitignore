@@ -7,3 +7,4 @@ dist/*
 *.swo
 *.swm
 *.eventlog
+!results/fpgrowth_*
