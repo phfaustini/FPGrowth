@@ -15,12 +15,13 @@ All impure actions, like IO, are contained here, and only here.
 module Main where
 
 import System.Environment -- getArgs
-import Control.Parallel
+import Control.Parallel.Strategies
 import TransactionsHandler
-import FPTree -- minsup
+import FPTree -- minsup, numberChunks
 import FPGrowth
 import qualified Data.Map as Map
 import Data.List -- intercalate
+import Data.List.Split -- chunksOf n list
 
 readLines :: FilePath -> IO [String]
 readLines = fmap lines . readFile
@@ -36,7 +37,8 @@ main::IO ()
 main = do
     args <- getArgs
     let filepath = head args
-    fileContent <- readLines filepath -- "input/transactions.txt"
+    fileContent <- readLines filepath -- "input/transactions.txt"    
+
     
     {-
         Step 1: Preprocessing.
@@ -45,33 +47,49 @@ main = do
         Then, the headerTable is built.
         Last, infrequent items are pruned from the sorted transactions.
     -}
-    let transactions = map words fileContent
-    let itemsCounted = countItems transactions (Map.fromList [])
-    let itemsCountedAndPruned = applyThreshold (fromIntegral $ length transactions) itemsCounted  
-    let headerTablePruned = reverse $ sortbyMostFrequent itemsCountedAndPruned
-    putStr "HeaderTable pruned: "
-    print headerTablePruned
+    let transactions = map words fileContent `using` parListChunk numberChunks rdeepseq
+    let itemsCounted = countItems transactions -- itemsCounted is like [("I1",6),("I2",7),("I3",6),("I4",2),("I5",2)]
+    let transactionsSize = length transactions
+    let threshold = round $ minsup * fromIntegral transactionsSize
+    putStr "threshold "
+    print threshold
+    putStrLn ""    
+    let itemsCountedAndPruned = applyThreshold (fromIntegral transactionsSize) itemsCounted
+    
+    let headerTablePruned = sortbyMostFrequent itemsCountedAndPruned
+    let headerTablePrunedReversed = reverse headerTablePruned
+    putStr "HeaderTableReversed pruned "
+    print headerTablePrunedReversed
     putStrLn ""
-    let sortedPrunedTransactions = sortTransactions transactions headerTablePruned []
+
+    --let sortedPrunedTransactions = chunksOf numberChunks $! sortTransactions transactions headerTablePrunedReversed  
+    let sortedPrunedTransactions = sortTransactions transactions headerTablePrunedReversed
+    putStr "Transactions Pruned "
+    print sortedPrunedTransactions
     
 
     {-
         Step 2: build FPTree
     -}
-    let root = FPNode "null" (length transactions) []
-    let fptree = buildFPTree (reverse sortedPrunedTransactions) root
+    let root = FPNode "null" transactionsSize []
+    --let fptree = buildFPTree root sortedPrunedTransactions
+    let fptree = buildFPTreefromChunk root sortedPrunedTransactions
     putStr (printFPTree fptree " ")
     putStrLn "\n"
-
+    
 
     {-
         Step 3: FPGrowth
         Conditional pattern bases are extracted from FPTree, one base for each frequent item.
         Frequent item sets are then mined.
     -}
-    let headerTablePrunedfromMintoMax = reverse headerTablePruned
+    let headerTablePrunedfromMintoMax = headerTablePruned
     let cpbs = buildConditionalPatternBase headerTablePrunedfromMintoMax fptree
-    let frequentSetsItems = frequentPatternItems (rawFrequentPatternItems cpbs []) (ceiling (minsup * fromIntegral (length transactions)))
-    putStr "Frequent sets of items: "
+    putStr "CPBS "
+    print cpbs
+    putStrLn ""
+    let frequentSetsItems = frequentPatternItems cpbs threshold
+    putStrLn "Frequent sets of items "
     print frequentSetsItems
     putStrLn ""
+    

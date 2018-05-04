@@ -30,9 +30,20 @@ $ cabal build
 * In the root folder, type
 
 ```
-$ ./dist/build/fpgrowth/fpgrowth <fileinputname> +RTS -N1 -s -ls -M2g
+$ ./dist/build/fpgrowth/fpgrowth <fileinputname> +RTS -N4 -s -ls -M3g
 ```
 
+where:
+
++RTS : embedded flags
+
+-Nx : number ot threads
+
+-s : runtime statistics.
+
+-ls : log for threadscope
+
+-M2g : maximum of 2GB RAM use.
 
 ## Author
 

@@ -5,7 +5,7 @@ Copyright   :  Copyright (c) 2018 Pedro Faustini
 License     :  See LICENSE
 
 Maintainer  :  pedro.faustini@ufabc.edu.br
-Stability   :  stable
+Stability   :  experimental
 Portability :  non-portable (Tested only in Linux)
 
 This module contains functions to retrieve frequent items from a FPTree.
@@ -15,16 +15,14 @@ This module contains functions to retrieve frequent items from a FPTree.
 module FPGrowth 
 (
     buildConditionalPatternBase,
-    rawFrequentPatternItems,
     frequentPatternItems
 )
 where
 
 import FPTree
 import Data.List -- subsequences
-import Data.Map (Map)
-import qualified Data.Map as Map
-import Data.Maybe
+import Dados
+
 
 -- | PRIVATE
 rawConditionalPatternBase :: String -> FPNode -> [String] -> [[String]]
@@ -49,59 +47,27 @@ conditionalPatternBase raw output
     | otherwise = conditionalPatternBase (tail (tail raw))  (( read (head (head raw)) :: Integer, head (tail raw) ) : output)
 
 -- | PRIVATE
-headerTableToConditionalPatternBase :: [(String, b)] -> FPNode -> [(Integer, [String])]
-headerTableToConditionalPatternBase headerTable node
+headerTableToConditionalPatternBase :: FPNode -> (String, b) -> [(Integer, [String])]
+headerTableToConditionalPatternBase node headerTable
     | null headerTable = []
-    | otherwise = conditionalPatternBase (rawConditionalPatternBase (fst (head headerTable)) node []) []
+    | otherwise = conditionalPatternBase (rawConditionalPatternBase (fst headerTable) node []) []
 
 buildConditionalPatternBase :: [(String, b)] -> FPNode -> [[(Integer, [String])]]
-buildConditionalPatternBase headerTable node
-    | null headerTable = []
-    | otherwise = headerTableToConditionalPatternBase headerTable node : buildConditionalPatternBase (tail headerTable) node
+buildConditionalPatternBase headerTable node = parmap (headerTableToConditionalPatternBase node) headerTable
 
-
-    
--- | PRIVATE
-patternsCombination :: [(t, [String])] -> [(t, [[String]])] -> [(t, [[String]])]
-patternsCombination cpb output
-    | null cpb = output
-    | otherwise = patternsCombination (tail cpb) ((count, combinations) : output)
-    where
-        count = fst $ head cpb
-        items = init (drop 1 (snd $ head cpb))
-        combinations = map (\x -> item : x) $ filter (/= []) $ subsequences items
-        item = head $ snd $ head cpb
-
+-- -------------------------------------------------------------------------------------------------------------------------------
 
 -- | PRIVATE
-reduceCombination :: (Num a1, Ord a) => (a1, [a]) -> Map a a1 -> Map a a1
-reduceCombination subcpb myMap
-    | null $ snd subcpb = myMap
-    | otherwise = reduceCombination (fst subcpb, tail (snd subcpb)) updateMap
-    where 
-        key = head $ snd subcpb
-        updateMap = Map.insert key updatedValue myMap
-        updatedValue
-            | isNothing (Map.lookup key myMap) = fst subcpb
-            | otherwise = fromJust (Map.lookup key myMap) + fst subcpb
-
+subCPBtoKeyValue :: (a1, [String]) -> [([String], a1)]
+subCPBtoKeyValue subcpb = map (\x -> (head (snd subcpb) : x, fst subcpb)) (subsequences (init (drop 1 (snd subcpb)))) -- fizzled if parmap
 
 -- | PRIVATE
-reduceCombinations :: (Num a1, Ord a) => [(a1, [a])] -> Map a a1 -> Map a a1
-reduceCombinations cpb myMap
-    | null cpb = myMap
-    | otherwise = reduceCombinations (tail cpb) (reduceCombination (head cpb) myMap)
+concatsubcpbs :: [(a1, [String])] -> [([String], a1)]
+concatsubcpbs cpb = concat [subCPBtoKeyValue sub | sub <- cpb]
 
+-- | PRIVATE
+--frequentPatternCPB :: (Num a, Ord a, Ord a1, Control.DeepSeq.NFData a, Control.DeepSeq.NFData a1) => a -> [(a, [a1])] -> [([a1], a)]
+frequentPatternCPB threshold cpb = parfilter (\x -> snd x >= threshold) $ combine (+) $ concatsubcpbs cpb
 
--- | It mines ALL pattern items, regardless of minimum support.
-rawFrequentPatternItems :: Num a1 => [[(a1, [String])]] -> [Map [String] a1] -> [Map [String] a1]
-rawFrequentPatternItems cpbs frequentitems
-    | null cpbs = frequentitems
-    | otherwise = rawFrequentPatternItems (tail cpbs) (reduceCombinations cpb Map.empty : frequentitems)
-    where
-        cpb = patternsCombination (head cpbs) []
-
-
--- | It extracts only the FREQUENT pattern items, according to minimum support. 
-frequentPatternItems :: Ord a => [Map a1 a] -> a -> [(a1, a)]
-frequentPatternItems frequentitemsmap minsup = [y | x<-frequentitemsmap, y <- Map.toList x, snd y >= minsup  ]
+--frequentPatternItems :: (Num a, Ord a, Ord a1, Control.DeepSeq.NFData a, Control.DeepSeq.NFData a1) => [[(a, [a1])]] -> a -> [[([a1], a)]]
+frequentPatternItems cpbs threshold = parmap (frequentPatternCPB threshold) cpbs
