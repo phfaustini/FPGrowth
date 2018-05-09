@@ -73,5 +73,4 @@ takeOrdered k f xs = take k
 
 parmapChunks f xs = (map f xs `using` parListChunk 2 rdeepseq)
 
--- modified from https://gist.github.com/cheecheeo/4229228
-parfilter p = withStrategy (parList rdeepseq) . filter p
+parfilter p xs = withStrategy (parList rdeepseq) $ filter p xs

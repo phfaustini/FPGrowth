@@ -5,7 +5,7 @@ Copyright   :  Copyright (c) 2018 Pedro Faustini
 License     :  See LICENSE
 
 Maintainer  :  pedro.faustini@ufabc.edu.br
-Stability   :  experimental
+Stability   :  stable
 Portability :  non-portable (Tested only in Linux)
 
 This module contains the definition of FPTree.
@@ -16,8 +16,7 @@ It also contains functions alike to FPTree.
 module FPTree
 (
     numberChunks,
-    buildFPTree, 
-    buildFPTreefromChunk,
+    buildFPTree,
     minsup,
     FPNode (FPNode),
     fpitem,
@@ -26,18 +25,11 @@ module FPTree
 )
  where
 
-import Control.Parallel.Strategies
-import Data.List (foldl1')
-import Control.DeepSeq
-import Dados
 numberChunks = 2 :: Int
 
 minsup = 0.82 -- An item has to appear in at least xx% of all transactions
 
 data FPNode = FPNode { fpitem :: ! String, fpcount :: ! Int, fpchildren :: ! [FPNode]} deriving (Show, Eq)
-
-instance NFData FPNode where -- Make FPNode compatible with haskell parallelism
-    rnf (FPNode a b c) = rnf a `seq` rnf b `seq` rnf c
 
 -- | PRIVATE
 -- | It is NOT recursive on children!
@@ -65,22 +57,16 @@ insertTransaction transaction root
                                                         (fpcount root)
                                                         (head [ insertTransaction (tail transaction) (FPNode (fpitem x) (fpcount x + 1) (fpchildren x)) | x <- fpchildren root, fpitem x == head transaction] : otherChildren)
     | otherwise = FPNode (fpitem root)
-                            (fpcount root)
-                            (createBranch transaction : fpchildren root)
+                         (fpcount root)
+                         (createBranch transaction : fpchildren root)
     where 
         transactionLength = length transaction
         incrementFPCountSomeChild = hasChild (head transaction) (fpchildren root)
         otherChildren = [x | x <- fpchildren root, fpitem x /= head transaction] 
     
 
-buildFPTreefromChunk :: FPNode -> [[String]] -> FPNode
-buildFPTreefromChunk node chunkOfTransactions
+buildFPTree :: FPNode -> [[String]] -> FPNode
+buildFPTree node chunkOfTransactions
     | null chunkOfTransactions = node
-    | null (head chunkOfTransactions) = buildFPTreefromChunk node (tail chunkOfTransactions)
-    | otherwise = buildFPTreefromChunk (insertTransaction (head chunkOfTransactions) node) (tail chunkOfTransactions)
-
-
-buildFPTree :: [[[String]]] -> FPNode -> FPNode
-buildFPTree list_transactions node = joinTree $! parmap (buildFPTreefromChunk node) list_transactions
-    where joinTree tree = FPNode (fpitem node) (fpcount node) [ children | nodenull <- tree, children <- fpchildren nodenull]
-
+    | null (head chunkOfTransactions) = buildFPTree node (tail chunkOfTransactions)
+    | otherwise = buildFPTree (insertTransaction (head chunkOfTransactions) node) (tail chunkOfTransactions)

@@ -48,7 +48,7 @@ main = do
         Last, infrequent items are pruned from the sorted transactions.
     -}
     let transactions = map words fileContent `using` parListChunk numberChunks rdeepseq
-    let itemsCounted = countItems transactions -- itemsCounted is like [("I1",6),("I2",7),("I3",6),("I4",2),("I5",2)]
+    let itemsCounted = countItems transactions
     let transactionsSize = length transactions
     let threshold = round $ minsup * fromIntegral transactionsSize
     putStr "threshold "
@@ -62,18 +62,16 @@ main = do
     print headerTablePrunedReversed
     putStrLn ""
 
-    --let sortedPrunedTransactions = chunksOf numberChunks $! sortTransactions transactions headerTablePrunedReversed  
     let sortedPrunedTransactions = sortTransactions transactions headerTablePrunedReversed
     putStr "Transactions Pruned "
-    print sortedPrunedTransactions
+    --print sortedPrunedTransactions
     
 
     {-
         Step 2: build FPTree
     -}
     let root = FPNode "null" transactionsSize []
-    --let fptree = buildFPTree root sortedPrunedTransactions
-    let fptree = buildFPTreefromChunk root sortedPrunedTransactions
+    let fptree = buildFPTree root sortedPrunedTransactions
     putStr (printFPTree fptree " ")
     putStrLn "\n"
     

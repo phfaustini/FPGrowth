@@ -30,7 +30,7 @@ $ cabal build
 * In the root folder, type
 
 ```
-$ ./dist/build/fpgrowth/fpgrowth <fileinputname> +RTS -N4 -s -ls -M3g
+$ ./dist/build/fpgrowth/fpgrowth <fileinputname> +RTS -N8 -s -ls -M3g
 ```
 
 where:
@@ -43,7 +43,7 @@ where:
 
 -ls : log for threadscope
 
--M2g : maximum of 2GB RAM use.
+-M3g : maximum of 3GB RAM use.
 
 ## Author
 
