@@ -40,37 +40,11 @@ combine :: Ord k
         => (v -> v -> v) -> [(k, v)] -> [(k, v)]
 combine f xs = map (foldByKey' f) $ groupByKey $ sortByKey xs
 
-parmap :: NFData b 
-       => (a -> b) -> [a] -> [b]
-parmap f xs = (map f xs `using` parList rdeepseq)
-
-mapReduce :: NFData b 
-          => (a -> b) -> (b -> b -> b) -> ChunksOf [a] -> b
-mapReduce f g xs = foldl1' g
-                 $ (map f' xs
-                       `using` parList rdeepseq)
-  where
-    f' xi = foldl1' g $ map f xi                       
-    
-
+                 
 mapReduceByKey  :: (NFData k, NFData v, Ord k) 
                 => (a -> (k, v)) -> (v -> v -> v) -> ChunksOf [a] -> [(k, v)]
 mapReduceByKey f g xs = combine g 
                      $ concat 
-                     $! (map f' xs 
-                          `using` parList rdeepseq)
+                     $! (map f' xs)
   where
     f' xi = combine g $ map f xi
-
-takeOrdered :: (Ord k, NFData k, NFData v) 
-            => Int -> (a -> (k, v)) -> ChunksOf [a] -> [(k, v)]    
-takeOrdered k f xs = take k 
-                   $ sortByKey
-                   $ concat 
-                   $ (map f' xs `using` parList rdeepseq)
-  where                   
-    f' xi = take k $ sortByKey $ map f xi
-
-parmapChunks f xs = (map f xs `using` parListChunk 2 rdeepseq)
-
-parfilter p xs = withStrategy (parList rdeepseq) $ filter p xs

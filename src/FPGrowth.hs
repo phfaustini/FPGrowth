@@ -53,13 +53,13 @@ headerTableToConditionalPatternBase node headerTable
     | otherwise = conditionalPatternBase (rawConditionalPatternBase (fst headerTable) node []) []
 
 buildConditionalPatternBase :: [(String, b)] -> FPNode -> [[(Integer, [String])]]
-buildConditionalPatternBase headerTable node = parmap (headerTableToConditionalPatternBase node) headerTable
+buildConditionalPatternBase headerTable node = map (headerTableToConditionalPatternBase node) headerTable
 
 -- -------------------------------------------------------------------------------------------------------------------------------
 
 -- | PRIVATE
 subCPBtoKeyValue :: (a1, [String]) -> [([String], a1)]
-subCPBtoKeyValue subcpb = map (\x -> (head (snd subcpb) : x, fst subcpb)) (subsequences (init (drop 1 (snd subcpb)))) -- fizzled if parmap
+subCPBtoKeyValue subcpb = map (\x -> (head (snd subcpb) : x, fst subcpb)) (subsequences (init (drop 1 (snd subcpb))))
 
 -- | PRIVATE
 concatsubcpbs :: [(a1, [String])] -> [([String], a1)]
@@ -67,7 +67,7 @@ concatsubcpbs cpb = concat [subCPBtoKeyValue sub | sub <- cpb]
 
 -- | PRIVATE
 --frequentPatternCPB :: (Num a, Ord a, Ord a1, Control.DeepSeq.NFData a, Control.DeepSeq.NFData a1) => a -> [(a, [a1])] -> [([a1], a)]
-frequentPatternCPB threshold cpb = parfilter (\x -> snd x >= threshold) $ combine (+) $ concatsubcpbs cpb
+frequentPatternCPB threshold cpb = filter (\x -> snd x >= threshold) $ combine (+) $ concatsubcpbs cpb
 
 --frequentPatternItems :: (Num a, Ord a, Ord a1, Control.DeepSeq.NFData a, Control.DeepSeq.NFData a1) => [[(a, [a1])]] -> a -> [[([a1], a)]]
-frequentPatternItems cpbs threshold = parmap (frequentPatternCPB threshold) cpbs
+frequentPatternItems cpbs threshold = map (frequentPatternCPB threshold) cpbs

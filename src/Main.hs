@@ -15,7 +15,6 @@ All impure actions, like IO, are contained here, and only here.
 module Main where
 
 import System.Environment -- getArgs
-import Control.Parallel.Strategies
 import TransactionsHandler
 import FPTree -- minsup, numberChunks
 import FPGrowth
@@ -47,7 +46,7 @@ main = do
         Then, the headerTable is built.
         Last, infrequent items are pruned from the sorted transactions.
     -}
-    let transactions = map words fileContent `using` parListChunk numberChunks rdeepseq
+    let transactions = map words fileContent
     let itemsCounted = countItems transactions
     let transactionsSize = length transactions
     let threshold = round $ minsup * fromIntegral transactionsSize

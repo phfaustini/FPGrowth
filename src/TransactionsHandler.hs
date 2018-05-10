@@ -33,7 +33,7 @@ countItems transactions = mapReduceByKey (\x -> (x,1)) (+) transactions
 
 -- | Step2: Eliminate items that do not appear in transactions enough.
 --applyThreshold :: Control.DeepSeq.NFData t => Double -> [(t, Double)] -> [(t, Double)]
-applyThreshold transactionsLength xs = parfilter (\(x,y) -> y > minsup*transactionsLength) xs 
+applyThreshold transactionsLength xs = filter (\(x,y) -> y > minsup*transactionsLength) xs 
 
 
 -- | Step3: Sort the list from most frequent item to the least one.
@@ -49,4 +49,4 @@ sortTransaction headerTable transaction = [fst x | x <- headerTable, fst x `elem
 
 -- | Sort each transaction from most to least common element in header table.
 --sortTransactions :: (Eq t, Foldable t1, Control.DeepSeq.NFData t) => [t1 t] -> [(t, b)] -> [[t]]
-sortTransactions transactions itemsCountAndSorted = parmap (sortTransaction itemsCountAndSorted) transactions
+sortTransactions transactions itemsCountAndSorted = map (sortTransaction itemsCountAndSorted) transactions
