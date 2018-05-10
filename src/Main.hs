@@ -47,7 +47,7 @@ main = do
         Then, the headerTable is built.
         Last, infrequent items are pruned from the sorted transactions.
     -}
-    let transactions = map words fileContent `using` parListChunk numberChunks rdeepseq
+    let transactions = map words fileContent `using` parListChunk 1 rdeepseq
     let itemsCounted = countItems transactions
     let transactionsSize = length transactions
     let threshold = round $ minsup * fromIntegral transactionsSize
