@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                fpgrowth
-version:             1.0.0.1
+version:             1.2.0.0
 synopsis:            Haskell implementation of parallel FPGrowth algorithm.
 -- description:         
 license:             MIT
